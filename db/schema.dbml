@@ -1,0 +1,51 @@
+//// -- LEVEL 1
+//// -- Schemas, Tables and References
+
+Table users as U {
+  id int [pk, increment]
+  username varchar(50) [unique, not null]
+  email varchar(100) [unique, not null]
+  password_hash varchar [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table categories as C {
+  id int [pk, increment]
+  name varchar(100) [unique, not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table docs as D {
+  id int [pk, increment]
+  title varchar(255) [not null]
+  content text
+  category_id int [ref: > C.id]
+  author_id int [not null, ref: > U.id]
+  notify_date timestamp
+  notif_sent boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table doc_users as DU {
+  doc_id int [ref: > D.id, pk]
+  user_id int [ref: > U.id, pk]
+  shared_at timestamp [default: `now()`]
+}
+
+Table actions as A {
+  id int [pk, increment]
+  user_id int [not null, ref: > U.id]
+  doc_id int [ref: > D.id]
+  action_type varchar(50) [not null] // e.g., 'created', 'updated', 'viewed', 'shared'
+  created_at timestamp [default: `now()`]
+}
+
+Table files as F {
+  id int [pk, increment]
+  doc_id int [ref: > D.id]
+  filename varchar(255) [not null]
+  filepath varchar(255) [not null]
+  url varchar(255) [not null]
+  uploaded_at timestamp [default: `now()`]
+}
