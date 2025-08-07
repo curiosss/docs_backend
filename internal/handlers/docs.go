@@ -7,7 +7,6 @@ import (
 	"docs-notify/internal/dto"
 	"docs-notify/internal/services"
 	"docs-notify/internal/utils"
-	"docs-notify/internal/validators"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -37,35 +36,35 @@ func NewDocHandler(s services.DocService) *DocHandler {
 func (h *DocHandler) CreateDoc(c echo.Context) error {
 	var req dto.CreateDocRequest
 	if err := c.Bind(&req); err != nil {
-		return utils.ErrorResponse(c, http.StatusBadRequest, "Invalid request body")
+		return utils.SendError(c, http.StatusBadRequest, "Invalid request body")
 	}
 
-	if err := validators.ValidateCreateDoc(&req); err != nil {
-		return utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
+	// if err := validators.ValidateCreateDoc(&req); err != nil {
+	// 	return utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	// }
 
 	user := c.Get("user").(jwt.MapClaims)
 	authorID := uint(user["user_id"].(float64))
 
 	doc, err := h.service.CreateDoc(&req, authorID)
 	if err != nil {
-		return utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return utils.SuccessResponse(c, http.StatusCreated, "Document created successfully", doc)
+	return utils.SendSuccess(c, http.StatusCreated, "Document created successfully", doc)
 }
 
 func (h *DocHandler) GetDoc(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return utils.ErrorResponse(c, http.StatusBadRequest, "Invalid document ID")
+		return utils.SendError(c, http.StatusBadRequest, "Invalid document ID")
 	}
 
 	doc, err := h.service.GetDoc(uint(id))
 	if err != nil {
 		// Здесь можно добавить проверку на gorm.ErrRecordNotFound для 404
-		return utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return utils.SendError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return utils.SuccessResponse(c, http.StatusOK, "Document retrieved successfully", doc)
+	return utils.SendSuccess(c, http.StatusOK, "Document retrieved successfully", doc)
 }

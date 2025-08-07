@@ -1,4 +1,4 @@
-package validators
+package validator
 
 import (
 	"docs-notify/internal/dto"

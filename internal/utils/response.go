@@ -15,7 +15,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func SuccessResponse(c echo.Context, statusCode int, message string, data interface{}) error {
+func SendSuccess(c echo.Context, statusCode int, message string, data interface{}) error {
 	return c.JSON(statusCode, SuccessResponse{
 		Success: true,
 		Message: message,
@@ -23,7 +23,7 @@ func SuccessResponse(c echo.Context, statusCode int, message string, data interf
 	})
 }
 
-func ErrorResponse(c echo.Context, statusCode int, message interface{}) error {
+func SendError(c echo.Context, statusCode int, message interface{}) error {
 	msgStr := "An error occurred"
 	if m, ok := message.(string); ok {
 		msgStr = m

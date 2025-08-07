@@ -13,10 +13,10 @@ func ErrorHandler(next echo.HandlerFunc) echo.HandlerFunc {
 		err := next(c)
 		if err != nil {
 			if he, ok := err.(*echo.HTTPError); ok {
-				return utils.ErrorResponse(c, he.Code, he.Message)
+				return utils.SendError(c, he.Code, he.Message)
 			}
 			// Для других типов ошибок можно добавить обработку
-			return utils.ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error")
+			return utils.SendError(c, http.StatusInternalServerError, "Internal Server Error")
 		}
 		return nil
 	}
