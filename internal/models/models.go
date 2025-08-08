@@ -7,12 +7,14 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	Username     string `gorm:"unique;not null;size:50"`
-	Email        string `gorm:"unique;not null;size:100"`
-	PasswordHash string `gorm:"not null"`
-	Docs         []Doc  `gorm:"foreignKey:AuthorID"`
-	SharedDocs   []Doc  `gorm:"many2many:doc_users;"`
+	ID          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	Username    string    `json:"username" gorm:"unique;not null;size:50"`
+	Password    string    `json:"password" gorm:"not null"`
+	Role        string    `json:"role" gorm:"not null"`
+	FcmToken    string    `json:"fcm_token"`
+	AccessToken string    `json:"access_token"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type Category struct {

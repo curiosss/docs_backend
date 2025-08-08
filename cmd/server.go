@@ -1,8 +1,9 @@
-package server
+package cmd
 
 import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/database"
+	"docs-notify/internal/utils/validator"
 
 	"fmt"
 
@@ -23,13 +24,13 @@ func NewServer() *Server {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
 		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort)
 
-	db, err := database.Connect(dsn, cfg.DisableAutoMigration)
+	db, err := database.Connect(dsn, cfg)
 	if err != nil {
 		panic(err)
 	}
 
 	e := echo.New()
-	// e.Validator = validator.NewValidator()
+	e.Validator = validator.NewValidator()
 	// e.HTTPErrorHandler = errorHandler.ResponseHTTPErrorHandler
 
 	// Middleware

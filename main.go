@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"docs-notify/cmd"
+	"docs-notify/internal"
 	"docs-notify/internal/middleware"
-	"docs-notify/internal/server"
+
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,7 +35,7 @@ import (
 // @name Authorization
 func main() {
 
-	server := server.NewServer()
+	server := cmd.NewServer()
 
 	middleware.RegisterMiddlewares(server)
 
@@ -42,6 +44,8 @@ func main() {
 
 	// Swagger
 	server.Echo.GET("/docs/*", echoSwagger.WrapHandler)
+
+	internal.InitRouters(server)
 
 	// Запуск сервера в горутине
 	go func() {

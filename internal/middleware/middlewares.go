@@ -1,14 +1,14 @@
 package middleware
 
 import (
-	"docs-notify/internal/server"
+	"docs-notify/cmd"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 )
 
-func RegisterMiddlewares(server *server.Server) {
+func RegisterMiddlewares(server *cmd.Server) {
 	server.Echo.Pre(echoMiddleware.RemoveTrailingSlash())
 	server.Echo.Use(
 		echoMiddleware.BodyLimitWithConfig(

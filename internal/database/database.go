@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"docs-notify/internal/models"
+	"docs-notify/internal/config"
 	"fmt"
 	"log"
 	"time"
@@ -12,7 +12,7 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 )
 
-func Connect(dsn string, disableAutoMigration bool) (*gorm.DB, error) {
+func Connect(dsn string, cfg *config.Config) (*gorm.DB, error) {
 	database, err := gorm.Open(
 		postgres.Open(dsn),
 		&gorm.Config{
@@ -43,20 +43,17 @@ func Connect(dsn string, disableAutoMigration bool) (*gorm.DB, error) {
 		return nil, fmt.Errorf("error connection database: %v", err)
 	}
 
-	if !disableAutoMigration {
+	if !cfg.DisableAutoMigration {
 		// Миграция схемы
-		err := database.AutoMigrate(
-			&models.User{},
-			// &models.Category{},
-			// &models.Doc{},
-			// &models.DocUser{},
-			// &models.Action{},
-			// &models.File{},
-		)
-
+		err := RunMigrations(database)
 		if err != nil {
 			return nil, fmt.Errorf("error migration database: %v", err)
 		}
+	}
+
+	err = SeedConstants(database, cfg.JWTSecret)
+	if err != nil {
+		return nil, fmt.Errorf("error seeding constants: %v", err)
 	}
 
 	log.Println("Connected to PostgresSql")

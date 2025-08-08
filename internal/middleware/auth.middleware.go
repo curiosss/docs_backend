@@ -1,8 +1,9 @@
 package middleware
 
 import (
+	"docs-notify/cmd"
 	"docs-notify/internal/models"
-	"docs-notify/internal/server"
+
 	"docs-notify/internal/utils/exceptions"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func AuthMiddleware(server *server.Server) echo.MiddlewareFunc {
+func AuthMiddleware(server *cmd.Server) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			tokenHeader := c.Request().Header.Get("Authorization")
@@ -65,7 +66,7 @@ func validateToken(tokenHeader string, key string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-func GetUserById(userId uint, server *server.Server) (user *models.User, err error) {
+func GetUserById(userId uint, server *cmd.Server) (user *models.User, err error) {
 	var u models.User
 	if err := server.Database.First(&u, userId).Error; err != nil {
 		return nil, err
