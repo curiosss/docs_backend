@@ -33,8 +33,8 @@ func (h *UserHandler) Login(c echo.Context) error {
 	user, err := h.userService.Login(userLoginDto)
 	if err != nil {
 		fmt.Println(err)
-		return err
-		// return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+		// return err
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, util.WrapResponse(user))

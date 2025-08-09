@@ -3,6 +3,7 @@ package cmd
 import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/database"
+	"docs-notify/internal/utils/errorHandler"
 	"docs-notify/internal/utils/validator"
 
 	"fmt"
@@ -31,7 +32,7 @@ func NewServer() *Server {
 
 	e := echo.New()
 	e.Validator = validator.NewValidator()
-	// e.HTTPErrorHandler = errorHandler.ResponseHTTPErrorHandler
+	e.HTTPErrorHandler = errorHandler.ResponseHTTPErrorHandler
 
 	// Middleware
 	// e.Use(echoMiddleware.Logger())
