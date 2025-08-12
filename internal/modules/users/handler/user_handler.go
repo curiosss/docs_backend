@@ -5,7 +5,6 @@ import (
 	"docs-notify/internal/modules/users/service"
 	"docs-notify/internal/utils/exceptions"
 	"docs-notify/internal/utils/util"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -32,31 +31,50 @@ func (h *UserHandler) Login(c echo.Context) error {
 
 	user, err := h.userService.Login(userLoginDto)
 	if err != nil {
-		fmt.Println(err)
-		// return err
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, util.WrapResponse(user))
 }
 
-// func (h *AuthHandler) Register(c echo.Context) error {
+func (h *UserHandler) ChangeUsername(c echo.Context) error {
 
-// 	var registerDto dto.UserRegisterDto
-// 	if err := c.Bind(&registerDto); err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
+	userId := c.Get("user_id").(uint)
+	var userLoginDto dto.UserLoginDto
+	if err := c.Bind(&userLoginDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
 
-// 	if err := c.Validate(&registerDto); err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
+	if err := c.Validate(&userLoginDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
 
-// 	admin, err := h.userService.Register(registerDto)
-// 	if err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
-// 	return c.JSON(http.StatusCreated, util.WrapResponse(admin))
-// }
+	user, err := h.userService.ChangeUsername(&userLoginDto, userId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, util.WrapResponse(user))
+}
+
+func (h *UserHandler) ChangePassword(c echo.Context) error {
+
+	var userLoginDto dto.UserLoginDto
+	if err := c.Bind(&userLoginDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	if err := c.Validate(&userLoginDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	user, err := h.userService.ChangePassword(&userLoginDto)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, util.WrapResponse(user))
+}
 
 // func (h *AuthHandler) GetAll(c echo.Context) error {
 // 	users, err := h.userService.GetAll()

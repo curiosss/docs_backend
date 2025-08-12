@@ -3,6 +3,7 @@ package middleware
 import (
 	"docs-notify/cmd"
 	"docs-notify/internal/models"
+	"errors"
 
 	"docs-notify/internal/utils/exceptions"
 	"strings"
@@ -16,7 +17,7 @@ func AuthMiddleware(server *cmd.Server) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			tokenHeader := c.Request().Header.Get("Authorization")
 			if tokenHeader == "" {
-				return exceptions.ErrBadRequest
+				return exceptions.NewResponseError(exceptions.ErrUnauthorized, errors.New("Authorization header is missing"))
 			}
 			claims, err := validateToken(tokenHeader, server.Config.JWTSecret)
 			if err != nil {
@@ -25,11 +26,11 @@ func AuthMiddleware(server *cmd.Server) echo.MiddlewareFunc {
 			if claims["user_id"] != nil {
 				var userId uint = uint(claims["user_id"].(float64))
 				c.Set("user_id", userId)
-				user, err := GetUserById(userId, server)
-				if err != nil {
-					return exceptions.ErrBadRequest
-				}
-				c.Set("user", user)
+				// user, err := GetUserById(userId, server)
+				// if err != nil {
+				// 	return exceptions.ErrBadRequest
+				// }
+				c.Set("user", claims)
 			}
 
 			return next(c)

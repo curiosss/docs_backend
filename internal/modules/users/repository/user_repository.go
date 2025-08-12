@@ -41,6 +41,48 @@ func (r *UserRepository) Login(loginDto *dto.UserLoginDto) (*models.User, error)
 	return &existing, nil
 }
 
+func (r *UserRepository) ChangeUsername(loginDto *dto.UserLoginDto, userId uint) (*models.User, error) {
+	var existing models.User
+
+	// Find user by username
+	if err := r.db.Where("id = ?", userId).First(&existing).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("User not found")
+		}
+		return nil, err
+	}
+
+	if existing.Password != loginDto.Password {
+		return nil, errors.New("invalid password")
+	}
+
+	existing.Username = loginDto.Username
+	if err := r.db.Save(existing).Error; err != nil {
+		return nil, err
+	}
+
+	return &existing, nil
+}
+
+func (r *UserRepository) ChangePassword(loginDto *dto.UserLoginDto) (*models.User, error) {
+	var existing models.User
+
+	// Find user by username
+	if err := r.db.Where("username = ?", loginDto.Username).First(&existing).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("User not found")
+		}
+		return nil, err
+	}
+
+	existing.Password = loginDto.Password
+	if err := r.db.Save(existing).Error; err != nil {
+		return nil, err
+	}
+
+	return &existing, nil
+}
+
 func (r *UserRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
 	err := r.db.First(&user, id).Error

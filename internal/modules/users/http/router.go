@@ -2,6 +2,7 @@ package http
 
 import (
 	"docs-notify/cmd"
+	"docs-notify/internal/middleware"
 	"docs-notify/internal/modules/users/handler"
 	"docs-notify/internal/modules/users/repository"
 	"docs-notify/internal/modules/users/service"
@@ -15,6 +16,7 @@ func InitUsersRouter(server *cmd.Server) {
 
 	server.Echo.POST("/api/users/login", userHandler.Login)
 
-	// userRouter := server.Echo.Group("/api/users", middleware.AuthMiddleware(server))
-	// userRouter.PUT("/update", userHandler.Update)
+	userRouter := server.Echo.Group("/api/users", middleware.AuthMiddleware(server))
+	userRouter.PUT("/change-username", userHandler.ChangeUsername)
+	userRouter.PUT("/change-password", userHandler.ChangePassword)
 }

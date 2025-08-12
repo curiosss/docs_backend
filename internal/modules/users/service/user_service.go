@@ -24,14 +24,21 @@ func (s *UserService) Login(loginDto dto.UserLoginDto) (*models.User, error) {
 	return user, nil
 }
 
-// func (s *UserService) Register(registerDto dto.UserRegisterDto) (*models.User, error) {
-// 	// Create new user from DTO
-// 	user := &models.User{
-// 		Username: registerDto.Username,
-// 		Password: registerDto.Password,
-// 		Email:    registerDto.Email,
-// 		Name:     registerDto.Name,
-// 	}
+func (s *UserService) ChangeUsername(loginDto *dto.UserLoginDto, userId uint) (*models.User, error) {
+	user, err := s.userRepository.ChangeUsername(loginDto, userId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *UserService) ChangePassword(loginDto *dto.UserLoginDto) (*models.User, error) {
+	user, err := s.userRepository.ChangePassword(loginDto)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
 
 // 	res, _ := s.userRepository.GetByEmail(user.Email)
 // 	if res != nil && res.Email == user.Email {
