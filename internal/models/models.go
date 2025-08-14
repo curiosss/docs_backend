@@ -18,21 +18,25 @@ type User struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+type Doc struct {
+	ID          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	UserId      uint      `json:"user_id" gorm:"not null"`
+	CategoryID  uint      `json:"category_id" gorm:"not null"`
+	DocName     string    `json:"doc_name" gorm:"not null;size:255"`
+	DocNo       string    `json:"doc_no" gorm:"not null;size:100"`
+	EndDate     time.Time `json:"end_date" `
+	NotifyDate  time.Time `json:"notify_date"`
+	NotifSent   bool      `gorm:"default:false"`
+	Status      string    `json:"status" gorm:"not null;default:'active'"`
+	Perminssion uint      `json:"perminssion" gorm:"not null;default:0"` // 0: private, 1: public
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 type Category struct {
 	gorm.Model
 	Name string `gorm:"unique;not null;size:100"`
 	Docs []Doc
-}
-
-type Doc struct {
-	gorm.Model
-	Title      string `gorm:"not null;size:255"`
-	Content    string
-	CategoryID uint
-	AuthorID   uint `gorm:"not null"`
-	NotifyDate time.Time
-	NotifSent  bool   `gorm:"default:false"`
-	Users      []User `gorm:"many2many:doc_users;"`
 }
 
 type DocUser struct {

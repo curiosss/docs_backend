@@ -168,10 +168,3 @@ func (r *UserRepository) GetAll() ([]dto.UserResponseDto, error) {
 	}
 	return responses, nil
 }
-
-// func (r *UserRepository) List(page, limit int) ([]models.User, error) {
-// 	var users []models.User
-// 	offset := (page - 1) * limit
-// 	err := r.db.Offset(offset).Limit(limit).Find(&users).Error
-// 	return users, err
-// }
