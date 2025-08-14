@@ -3,6 +3,7 @@ package cmd
 import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/database"
+
 	"docs-notify/internal/utils/errorHandler"
 	"docs-notify/internal/utils/validator"
 

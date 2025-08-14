@@ -2,10 +2,9 @@ package database
 
 import (
 	"docs-notify/internal/models"
+	jwtutils "docs-notify/internal/utils/jwt_utils"
 	"errors"
-	"time"
 
-	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
 )
 
@@ -47,19 +46,9 @@ func seedAdmin(db *gorm.DB, jwtSecret string) error {
 		return errors.New("failed to create default admin: " + err.Error())
 	}
 
-	// Create claims
-	claims := jwt.MapClaims{
-		"user_id":  admin.ID,
-		"username": admin.Username,
-		"role":     admin.Role,
-		"exp":      time.Now().Add(time.Hour * 24 * 365 * 100).Unix(), // 100 years
-	}
-
-	// Generate token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	accessToken, err := token.SignedString([]byte(jwtSecret))
+	accessToken, err := jwtutils.GenerateToken(admin.ID, jwtSecret)
 	if err != nil {
-		return errors.New("failed to generate access token: " + err.Error())
+		return err
 	}
 
 	// Update the admin with the access token

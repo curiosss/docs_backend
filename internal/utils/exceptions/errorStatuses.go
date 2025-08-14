@@ -1,8 +1,9 @@
 package exceptions
 
 import (
-	"github.com/goccy/go-json"
 	"net/http"
+
+	"github.com/goccy/go-json"
 )
 
 // ResponseError defines a detailed error structure
@@ -26,22 +27,22 @@ var (
 	ErrBadRequest = &ResponseError{
 		Code:    http.StatusBadRequest,
 		Message: "Bad Request",
-		Details: "The request could not be understood or was missing required parameters.",
+		Details: "Maglumatlaryň dogrulygyny barlaň!",
 	}
 	ErrUnauthorized = &ResponseError{
 		Code:    http.StatusUnauthorized,
 		Message: "Unauthorized",
-		Details: "Authentication is required and has failed or has not yet been provided.",
+		Details: "Ulgama giriň!",
 	}
 	ErrForbidden = &ResponseError{
 		Code:    http.StatusForbidden,
 		Message: "Forbidden",
-		Details: "You do not have permission to access this resource.",
+		Details: "Sizde bu resursa elýeterlik ýok.",
 	}
 	ErrNotFound = &ResponseError{
 		Code:    http.StatusNotFound,
 		Message: "Not Found",
-		Details: "The requested resource could not be found.",
+		Details: "Tapylmady",
 	}
 	ErrConflict = &ResponseError{
 		Code:    http.StatusConflict,
@@ -51,7 +52,7 @@ var (
 	ErrInternalServerError = &ResponseError{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal Server ResponseError",
-		Details: "An unexpected error occurred on the server.",
+		Details: "Ýalňyşlyk ýüze çykdy, gaýtadan synanyşyp görüň!",
 	}
 	ErrUnprocessableEntity = &ResponseError{
 		Code:    http.StatusUnprocessableEntity,

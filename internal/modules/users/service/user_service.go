@@ -39,77 +39,40 @@ func (s *UserService) ChangePassword(loginDto *dto.UserLoginDto) (*models.User, 
 	}
 	return user, nil
 }
+func (s *UserService) CreateUser(userCreateDto dto.UserCreateDto) (*models.User, error) {
+	user := &models.User{
+		Username: userCreateDto.Username,
+		Password: userCreateDto.Password,
+		Role:     userCreateDto.Role,
+		Note:     userCreateDto.Note,
+	}
 
-// 	res, _ := s.userRepository.GetByEmail(user.Email)
-// 	if res != nil && res.Email == user.Email {
-// 		return nil, errors.New("user with this email already exists")
-// 	}
-
-// 	return s.userRepository.Create(user)
-// }
-
-// if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDto.Password)); err != nil {
-// 	return nil, err
-// }
-
-// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-// 	"user_id": user.Id,
-// 	"exp":     time.Now().Add(time.Minute * 20).Unix(),
-// })
-// refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-// 	"user_id": user.Id,
-// 	"exp":     time.Now().Add(time.Hour * 24 * 10).Unix(),
-// })
-// tokenString, err := token.SignedString([]byte(s.config.SecretKeyForUser))
-// if err != nil {
-// 	return nil, err
-// }
-// refreshString, err := refreshToken.SignedString([]byte(s.config.SecretKeyForRefresh))
-// if err != nil {
-// 	return nil, err
-// }
-
-// return &dto.UserResponseDto{
-// 	ID:           user.Id,
-// 	Username:     user.Username,
-// 	Name:         user.Name,
-// 	Email:        user.Email,
-// 	AccessToken:  tokenString,
-// 	RefreshToken: refreshString,
-// }, nil
-
-// }
-
-func (s *UserService) GetAll() (*models.User, error) {
-	users, err := s.userRepository.GetAll()
+	createdUser, err := s.userRepository.Create(user, s.config.JWTSecret)
 	if err != nil {
 		return nil, err
 	}
-	return users, nil
+	return createdUser, nil
 }
 
-// func (s *UserService) Update(userId uint, updateDto dto.UserUpdateDto) (*models.User, error) {
-// 	user, err := s.userRepository.GetById(userId)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (s *UserService) UpdateUser(userUpdateDto dto.UserUpdateDto) (*models.User, error) {
+	user := &models.User{
+		ID:       userUpdateDto.Id,
+		Username: userUpdateDto.Username,
+		Password: userUpdateDto.Password,
+		Role:     userUpdateDto.Role,
+		Note:     userUpdateDto.Note,
+	}
+	createdUser, err := s.userRepository.Update(user)
+	if err != nil {
+		return nil, err
+	}
+	return createdUser, nil
+}
 
-// 	if updateDto.Username != "" {
-// 		user.Username = updateDto.Username
-// 	}
-// 	if updateDto.Name != "" {
-// 		user.Name = updateDto.Name
-// 	}
-// 	if updateDto.Email != "" {
-// 		user.Email = updateDto.Email
-// 	}
-// 	if updateDto.Password != "" {
-// 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(updateDto.Password), bcrypt.DefaultCost)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		user.Password = string(hashedPassword)
-// 	}
+func (s *UserService) DeleteUser(userId uint) error {
+	return s.userRepository.Delete(userId)
+}
 
-// 	return s.userRepository.Update(user)
-// }
+func (s *UserService) GetUsers() ([]dto.UserResponseDto, error) {
+	return s.userRepository.GetAll()
+}

@@ -4,6 +4,7 @@ import (
 	"docs-notify/internal/modules/users/dto"
 	"docs-notify/internal/modules/users/service"
 	"docs-notify/internal/utils/exceptions"
+	numutils "docs-notify/internal/utils/num_utils"
 	"docs-notify/internal/utils/util"
 	"net/http"
 
@@ -76,29 +77,61 @@ func (h *UserHandler) ChangePassword(c echo.Context) error {
 	return c.JSON(http.StatusOK, util.WrapResponse(user))
 }
 
-// func (h *AuthHandler) GetAll(c echo.Context) error {
-// 	users, err := h.userService.GetAll()
-// 	if err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
-// 	return c.JSON(http.StatusOK, util.WrapResponse(users))
-// }
-// func (h *AuthHandler) Update(c echo.Context) error {
+func (h *UserHandler) CreateUser(c echo.Context) error {
+	var userCreateDto dto.UserCreateDto
+	if err := c.Bind(&userCreateDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
 
-// 	var updateDto dto.UserUpdateDto
-// 	if err := c.Bind(&updateDto); err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
+	if err := c.Validate(&userCreateDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+	// fmt.Println("Creating user with data:", userCreateDto)
+	user, err := h.userService.CreateUser(userCreateDto)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
 
-// 	if err := c.Validate(&updateDto); err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
+	return c.JSON(http.StatusCreated, util.WrapResponse(user))
+}
 
-// 	userId := c.Get("user_id").(uint)
-// 	user, err := h.userService.Update(userId, updateDto)
-// 	if err != nil {
-// 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-// 	}
+func (h *UserHandler) UpdateUser(c echo.Context) error {
+	var userUpdateDto dto.UserUpdateDto
+	if err := c.Bind(&userUpdateDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
 
-// 	return c.JSON(http.StatusOK, util.WrapResponse(user))
-// }
+	if err := c.Validate(&userUpdateDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	user, err := h.userService.UpdateUser(userUpdateDto)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	return c.JSON(http.StatusCreated, util.WrapResponse(user))
+}
+
+func (h *UserHandler) DeleteUser(c echo.Context) error {
+	userId, err := numutils.GetUintParam(c, "user_id")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	err = h.userService.DeleteUser(userId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (h *UserHandler) GetAll(c echo.Context) error {
+
+	users, err := h.userService.GetUsers()
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusCreated, util.WrapResponse(users))
+}

@@ -13,6 +13,7 @@ type User struct {
 	Role        string    `json:"role" gorm:"not null"`
 	FcmToken    string    `json:"fcm_token"`
 	AccessToken string    `json:"access_token"`
+	Note        string    `json:"note"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

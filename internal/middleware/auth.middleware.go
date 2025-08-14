@@ -26,13 +26,32 @@ func AuthMiddleware(server *cmd.Server) echo.MiddlewareFunc {
 			if claims["user_id"] != nil {
 				var userId uint = uint(claims["user_id"].(float64))
 				c.Set("user_id", userId)
-				// user, err := GetUserById(userId, server)
-				// if err != nil {
-				// 	return exceptions.ErrBadRequest
-				// }
-				c.Set("user", claims)
+
+				user, err := GetUserById(userId, server)
+				if err != nil {
+					return exceptions.NewResponseError(exceptions.ErrUnauthorized, errors.New("User not found"))
+				}
+				c.Set("user", user)
 			}
 
+			return next(c)
+		}
+	}
+}
+
+func RoleMiddleware(server *cmd.Server, role string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			user, ok := c.Get("user").(*models.User)
+			if !ok {
+				return exceptions.NewResponseError(exceptions.ErrUnauthorized, errors.New("User not found in context"))
+			}
+			if role == "admin" {
+				if user.Role != "admin" {
+					return exceptions.NewResponseError(exceptions.ErrForbidden, errors.New("Sizde bu amal üçin ygtyýaryňyz ýok"))
+				}
+				return next(c)
+			}
 			return next(c)
 		}
 	}

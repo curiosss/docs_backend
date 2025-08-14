@@ -3,7 +3,9 @@ package repository
 import (
 	"docs-notify/internal/models"
 	"docs-notify/internal/modules/users/dto"
+	jwtutils "docs-notify/internal/utils/jwt_utils"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -16,26 +18,19 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) Create(user *models.User) (*models.User, error) {
-	if err := r.db.Create(user).Error; err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 func (r *UserRepository) Login(loginDto *dto.UserLoginDto) (*models.User, error) {
 	var existing models.User
 
 	// Find user by username
 	if err := r.db.Where("username = ?", loginDto.Username).First(&existing).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("invalid username")
+			return nil, errors.New("Ulanyjy tapylmady")
 		}
 		return nil, err
 	}
 
 	if existing.Password != loginDto.Password {
-		return nil, errors.New("invalid password")
+		return nil, errors.New("Parol dogry däl")
 	}
 
 	return &existing, nil
@@ -47,13 +42,13 @@ func (r *UserRepository) ChangeUsername(loginDto *dto.UserLoginDto, userId uint)
 	// Find user by username
 	if err := r.db.Where("id = ?", userId).First(&existing).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("User not found")
+			return nil, errors.New("Ulanyjy tapylmady")
 		}
 		return nil, err
 	}
 
 	if existing.Password != loginDto.Password {
-		return nil, errors.New("invalid password")
+		return nil, errors.New("Parol dogry däl")
 	}
 
 	existing.Username = loginDto.Username
@@ -70,7 +65,7 @@ func (r *UserRepository) ChangePassword(loginDto *dto.UserLoginDto) (*models.Use
 	// Find user by username
 	if err := r.db.Where("username = ?", loginDto.Username).First(&existing).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("User not found")
+			return nil, errors.New("Ulanyjy tapylmady")
 		}
 		return nil, err
 	}
@@ -83,43 +78,75 @@ func (r *UserRepository) ChangePassword(loginDto *dto.UserLoginDto) (*models.Use
 	return &existing, nil
 }
 
+func (r *UserRepository) Create(user *models.User, jwtSecret string) (*models.User, error) {
+	// Check if username already exists
+	var count int64
+	if err := r.db.Model(&models.User{}).
+		Where("username = ?", user.Username).
+		Count(&count).Error; err != nil {
+		return nil, err
+	}
+	if count > 0 {
+		return nil, errors.New("Bu ulanyjy ady ulgama hasaba alnan")
+	}
+
+	// Create the user
+	if err := r.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+	token, err := jwtutils.GenerateToken(user.ID, jwtSecret)
+	if err != nil {
+		return nil, err
+	}
+	user.AccessToken = token
+
+	// Save the user with the access token
+	if err := r.db.Save(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+func (r *UserRepository) Update(user *models.User) (*models.User, error) {
+	// Check if username is taken by another user
+	var existing models.User
+	err := r.db.
+		Where("username = ? AND id <> ?", user.Username, user.ID).
+		First(&existing).Error
+
+	if err == nil {
+		return nil, errors.New("ulanyjy ady başgalary tarapyndan ulanylýar")
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	err = r.db.Model(&user).
+		Select("username", "password", "role", "note").
+		Updates(user).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (r *UserRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
 	err := r.db.First(&user, id).Error
 	return &user, err
 }
 
-func (r *UserRepository) Update(user *models.User) (*models.User, error) {
-	if err := r.db.Save(user).Error; err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 func (r *UserRepository) Delete(id uint) error {
-	return r.db.Delete(&models.User{}, id).Error
-}
-
-func (r *UserRepository) List(page, limit int) ([]models.User, error) {
-	var users []models.User
-	offset := (page - 1) * limit
-	err := r.db.Offset(offset).Limit(limit).Find(&users).Error
-	return users, err
-}
-
-func (r *UserRepository) GetByEmail(email string) (*models.User, error) {
-	var user models.User
-	err := r.db.Where("email = ?", email).First(&user).Error
-	if err != nil {
-		return nil, err
+	result := r.db.Delete(&models.User{}, id)
+	fmt.Println(result.Error)
+	if result.RowsAffected > 0 {
+		return nil
+	} else {
+		if result.Error == nil {
+			return errors.New("Ulanyjy tapylmady")
+		}
+		return result.Error
 	}
-	return &user, err
-}
-
-func (r *UserRepository) GetAll() (*models.User, error) {
-	var users models.User
-	err := r.db.Find(&users).Error
-	return &users, err
 }
 
 func (r *UserRepository) GetById(id uint) (*models.User, error) {
@@ -129,3 +156,22 @@ func (r *UserRepository) GetById(id uint) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) GetAll() ([]dto.UserResponseDto, error) {
+	var responses []dto.UserResponseDto
+
+	// Fetch only necessary fields and order by role
+	if err := r.db.Model(&models.User{}).
+		Order("role ASC").
+		Scan(&responses).Error; err != nil {
+		return nil, err
+	}
+	return responses, nil
+}
+
+// func (r *UserRepository) List(page, limit int) ([]models.User, error) {
+// 	var users []models.User
+// 	offset := (page - 1) * limit
+// 	err := r.db.Offset(offset).Limit(limit).Find(&users).Error
+// 	return users, err
+// }

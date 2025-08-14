@@ -5,9 +5,17 @@ type UserLoginDto struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type UserCreateDto struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Role     string `json:"role" validate:"required,oneof=admin operator user"`
+	Note     string `json:"note" validate:"omitempty"`
+}
+
 type UserUpdateDto struct {
+	Id       uint   `json:"id" validate:"required"`
 	Username string `json:"username" validate:"omitempty"`
-	Name     string `json:"name" validate:"omitempty"`
 	Password string `json:"password" validate:"omitempty"`
-	Email    string `json:"email" validate:"omitempty,email"`
+	Role     string `json:"role" validate:"omitempty,oneof=admin operator user"`
+	Note     string `json:"note" validate:"omitempty"`
 }
