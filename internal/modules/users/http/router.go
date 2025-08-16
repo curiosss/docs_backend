@@ -21,7 +21,7 @@ func InitUsersRouter(server *cmd.Server) {
 	userRouter.GET("/all", userHandler.GetAll)
 	userRouter.PUT("/change-username", userHandler.ChangeUsername)
 	userRouter.PUT("/change-password", userHandler.ChangePassword)
-	userRouter.POST("/create", userHandler.CreateUser, middleware.RoleMiddleware(server, "admin"))
-	userRouter.PUT("/update", userHandler.UpdateUser, middleware.RoleMiddleware(server, "admin"))
-	userRouter.GET("/delete", userHandler.DeleteUser, middleware.RoleMiddleware(server, "admin"))
+	userRouter.POST("/create", userHandler.CreateUser, middleware.RoleMiddleware("admin"))
+	userRouter.PUT("/update", userHandler.UpdateUser, middleware.RoleMiddleware("admin"))
+	userRouter.GET("/delete", userHandler.DeleteUser, middleware.RoleMiddleware("admin"))
 }

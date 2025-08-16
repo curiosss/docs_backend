@@ -11,11 +11,11 @@ import (
 func InitDocsRouter(server *cmd.Server) {
 
 	docsRepository := repository.NewDocsRepository(server.Database)
-	docsService := service.NewDocsService(docsRepository, server.Config)
+	docsService := service.NewDocsService(docsRepository, server.Config, server.Database)
 	docsHandler := handler.NewDocsHandler(docsService)
 
 	// server.Echo.POST("/api/users/login", docsHandler.Login)
 
 	docsRouter := server.Echo.Group("/api/docs", middleware.AuthMiddleware(server))
-	docsRouter.POST("/create", docsHandler.Create)
+	docsRouter.POST("/create", docsHandler.Create, middleware.RoleMiddleware("operator"))
 }

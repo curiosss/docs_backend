@@ -39,10 +39,11 @@ func AuthMiddleware(server *cmd.Server) echo.MiddlewareFunc {
 	}
 }
 
-func RoleMiddleware(server *cmd.Server, role string) echo.MiddlewareFunc {
+func RoleMiddleware(role string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			user, ok := c.Get("user").(*models.User)
+
 			if !ok {
 				return exceptions.NewResponseError(exceptions.ErrUnauthorized, errors.New("User not found in context"))
 			}
@@ -51,6 +52,12 @@ func RoleMiddleware(server *cmd.Server, role string) echo.MiddlewareFunc {
 					return exceptions.NewResponseError(exceptions.ErrForbidden, errors.New("Sizde bu amal üçin ygtyýaryňyz ýok"))
 				}
 				return next(c)
+			} else if role == "operator" {
+
+				if user.Role == "admin" || user.Role == "operator" {
+					return next(c)
+				}
+				return exceptions.NewResponseError(exceptions.ErrForbidden, errors.New("Sizde bu amal üçin ygtyýaryňyz ýok"))
 			}
 			return next(c)
 		}
