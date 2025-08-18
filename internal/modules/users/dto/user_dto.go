@@ -5,6 +5,11 @@ type UserLoginDto struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type UserPwdUpdateDto struct {
+	NewPassword string `json:"new_password" validate:"required"`
+	Password    string `json:"password" validate:"required"`
+}
+
 type UserCreateDto struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`

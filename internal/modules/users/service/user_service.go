@@ -32,12 +32,12 @@ func (s *UserService) ChangeUsername(loginDto *dto.UserLoginDto, userId uint) (*
 	return user, nil
 }
 
-func (s *UserService) ChangePassword(loginDto *dto.UserLoginDto) (*models.User, error) {
-	user, err := s.userRepository.ChangePassword(loginDto)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+func (s *UserService) ChangePassword(pwdUpdateDto *dto.UserPwdUpdateDto, userId uint) (*models.User, error) {
+	// user, err := s.userRepository.ChangePassword(pwdUpdateDto)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	return s.userRepository.ChangePassword(pwdUpdateDto, userId)
 }
 func (s *UserService) CreateUser(userCreateDto dto.UserCreateDto) (*models.User, error) {
 	user := &models.User{

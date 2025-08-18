@@ -39,7 +39,6 @@ func (r *UserRepository) Login(loginDto *dto.UserLoginDto) (*models.User, error)
 func (r *UserRepository) ChangeUsername(loginDto *dto.UserLoginDto, userId uint) (*models.User, error) {
 	var existing models.User
 
-	// Find user by username
 	if err := r.db.Where("id = ?", userId).First(&existing).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("Ulanyjy tapylmady")
@@ -59,22 +58,24 @@ func (r *UserRepository) ChangeUsername(loginDto *dto.UserLoginDto, userId uint)
 	return &existing, nil
 }
 
-func (r *UserRepository) ChangePassword(loginDto *dto.UserLoginDto) (*models.User, error) {
+func (r *UserRepository) ChangePassword(pwdUpdateDto *dto.UserPwdUpdateDto, userId uint) (*models.User, error) {
 	var existing models.User
 
-	// Find user by username
-	if err := r.db.Where("username = ?", loginDto.Username).First(&existing).Error; err != nil {
+	if err := r.db.Where("id = ?", userId).First(&existing).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("Ulanyjy tapylmady")
 		}
 		return nil, err
 	}
 
-	existing.Password = loginDto.Password
+	if existing.Password != pwdUpdateDto.Password {
+		return nil, errors.New("Parol dogry däl")
+	}
+
+	existing.Password = pwdUpdateDto.NewPassword
 	if err := r.db.Save(existing).Error; err != nil {
 		return nil, err
 	}
-
 	return &existing, nil
 }
 

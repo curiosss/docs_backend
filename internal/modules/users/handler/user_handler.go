@@ -59,17 +59,17 @@ func (h *UserHandler) ChangeUsername(c echo.Context) error {
 }
 
 func (h *UserHandler) ChangePassword(c echo.Context) error {
-
-	var userLoginDto dto.UserLoginDto
-	if err := c.Bind(&userLoginDto); err != nil {
+	userId := c.Get("user_id").(uint)
+	var userPwdUpdateDto dto.UserPwdUpdateDto
+	if err := c.Bind(&userPwdUpdateDto); err != nil {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 
-	if err := c.Validate(&userLoginDto); err != nil {
+	if err := c.Validate(&userPwdUpdateDto); err != nil {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 
-	user, err := h.userService.ChangePassword(&userLoginDto)
+	user, err := h.userService.ChangePassword(&userPwdUpdateDto, userId)
 	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
