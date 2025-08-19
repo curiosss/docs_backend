@@ -42,9 +42,12 @@ type File struct {
 }
 
 type Category struct {
-	gorm.Model
-	Name string `gorm:"unique;not null;size:100"`
-	Docs []Doc
+	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
+	Name      string    `json:"name" gorm:"not null;size:100" validate:"required"`
+	ParentID  *uint     `json:"parent_id" gorm:"default:null"` // For subcategories
+	Icon      string    `json:"icon" gorm:"size:255"`          // Optional icon for the category
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type DocUser struct {

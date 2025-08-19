@@ -110,7 +110,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 
-	return c.JSON(http.StatusCreated, util.WrapResponse(user))
+	return c.JSON(http.StatusOK, util.WrapResponse(user))
 }
 
 func (h *UserHandler) DeleteUser(c echo.Context) error {
@@ -133,5 +133,5 @@ func (h *UserHandler) GetAll(c echo.Context) error {
 	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
-	return c.JSON(http.StatusCreated, util.WrapResponse(users))
+	return c.JSON(http.StatusOK, util.WrapResponse(users))
 }

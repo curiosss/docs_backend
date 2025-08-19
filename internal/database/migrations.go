@@ -12,7 +12,7 @@ func RunMigrations(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&models.User{},
 		&models.Doc{},
-		// &models.Category{},
+		&models.Category{},
 		// &models.DocUser{},
 		// &models.Action{},
 		// &models.File{},
@@ -22,6 +22,10 @@ func RunMigrations(db *gorm.DB) error {
 
 func SeedConstants(db *gorm.DB, jwtSecret string) error {
 	err := seedAdmin(db, jwtSecret)
+	if err != nil {
+		return err
+	}
+	err = SeedCategories(db)
 	return err
 }
 
@@ -55,6 +59,30 @@ func seedAdmin(db *gorm.DB, jwtSecret string) error {
 	admin.AccessToken = accessToken
 	if err := db.Save(&admin).Error; err != nil {
 		return errors.New("failed to update admin with token: " + err.Error())
+	}
+
+	return nil
+}
+func SeedCategories(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&models.Category{}).Count(&count).Error; err != nil {
+		return errors.New("failed to count categories: " + err.Error())
+	}
+
+	if count > 0 {
+		// Categories already exist, skip seeding
+		return nil
+	}
+
+	categories := []models.Category{
+		{Name: "Şertnama"},
+		{Name: "Sertifikat", Icon: "certificate"},
+		{Name: "Deklarasiýa", Icon: "decloration"},
+		{Name: "Wiza"},
+	}
+
+	if err := db.Create(&categories).Error; err != nil {
+		return errors.New("failed to seed categories: " + err.Error())
 	}
 
 	return nil
