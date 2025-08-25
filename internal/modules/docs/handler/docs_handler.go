@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"docs-notify/internal/models"
+	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/service"
 	"docs-notify/internal/utils/exceptions"
 	"errors"
@@ -24,13 +24,12 @@ func (h *DocsHandler) Login(c echo.Context) error {
 }
 func (h *DocsHandler) Create(c echo.Context) error {
 	// Parse form fields
-	var doc models.Doc
-	doc.UserId = c.Get("user_id").(uint) // from middleware
-c.FormValue()
+	var doc dto.DocCreateDto
 	// Bind JSON fields first (DocName, DocNo, etc.)
 	if err := c.Bind(&doc); err != nil {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
+	doc.UserId = c.Get("user_id").(uint) // from middleware
 	if err := c.Validate(&doc); err != nil {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
@@ -43,11 +42,16 @@ c.FormValue()
 
 	// Save in DB
 	if err := h.docsService.CreateDoc(&doc, file); err != nil {
-		return exceptions.NewResponseError(exceptions.ErrInternalServerError, errors.New("Dokument faýlyny ýükläň"))
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusCreated, echo.Map{
 		"message": "Document created successfully",
 		"doc":     doc,
 	})
+}
+
+func (h *DocsHandler) GetDocs(c echo.Context) error {
+
+	return nil
 }

@@ -19,19 +19,19 @@ type User struct {
 }
 
 type Doc struct {
-	ID          uint      `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserId      uint      `json:"user_id" gorm:"not null"`
-	CategoryID  uint      `json:"category_id" gorm:"not null" validate:"required"`
-	DocName     string    `json:"doc_name" gorm:"not null;size:255" validate:"required"`
-	DocNo       string    `json:"doc_no" gorm:"not null;size:100" validate:"required"`
-	EndDate     time.Time `json:"end_date" validate:"required"`
-	NotifyDate  time.Time `json:"notify_date" validate:"required"`
-	NotifSent   bool      `gorm:"default:false" default:"false"`
-	Status      string    `json:"status" gorm:"not null;default:'active'"`
-	Perminssion uint      `json:"perminssion" gorm:"not null;default:0"` // 0: private, 1: public
-	File        string    `json:"file"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	UserId     uint      `json:"user_id" gorm:"not null"`
+	CategoryID uint      `json:"category_id" gorm:"not null" validate:"required"`
+	DocName    string    `json:"doc_name" gorm:"not null;size:255" validate:"required"`
+	DocNo      string    `json:"doc_no" gorm:"not null;size:100" validate:"required"`
+	EndDate    time.Time `json:"end_date" gorm:"type:date" validate:"required"`
+	NotifyDate time.Time `json:"notify_date" gorm:"type:date" validate:"required"`
+	NotifSent  bool      `gorm:"default:false" default:"false"`
+	Status     string    `json:"status" gorm:"not null;default:'active'"`
+	Permission *uint     `json:"permission"` // 0: private, 1: public
+	File       string    `json:"file"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // type File struct {

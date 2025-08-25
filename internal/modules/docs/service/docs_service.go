@@ -3,9 +3,12 @@ package service
 import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/models"
+	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/repository"
 	fileutils "docs-notify/internal/utils/file_utils"
+	"fmt"
 	"mime/multipart"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -23,14 +26,36 @@ func NewDocsService(userRepository *repository.DocsRepository, cfg *config.Confi
 		db:         d,
 	}
 }
-func (s *DocsService) CreateDoc(doc *models.Doc, file *multipart.FileHeader) error {
+func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHeader) error {
 	// Save file locally
 	filePath, err := fileutils.SaveUploadedFile(file)
 	if err != nil {
 		return err
 	}
+
 	// Attach to Doc model
-	doc.File = filePath
+	layout := "2006-01-02" // Go's reference date for parsing YYYY-MM-DD
+
+	fmt.Println(docDto.EndDate, docDto.NotifyDate)
+	endDate, err := time.Parse(layout, docDto.EndDate)
+	if err != nil {
+		return fmt.Errorf("invalid end date: %w", err)
+	}
+	notifyDate, err := time.Parse(layout, docDto.NotifyDate)
+	if err != nil {
+		return fmt.Errorf("invalid notify date: %w", err)
+	}
+	doc := &models.Doc{
+		UserId:     docDto.UserId,
+		CategoryID: docDto.CategoryID,
+		DocName:    docDto.DocName,
+		DocNo:      docDto.DocNo,
+		EndDate:    endDate,
+		NotifyDate: notifyDate,
+		Status:     docDto.Status,
+		Permission: docDto.Permission,
+		File:       filePath,
+	}
 
 	err = s.repository.CreateDoc(doc)
 
