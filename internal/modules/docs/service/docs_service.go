@@ -4,6 +4,8 @@ import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/models"
 	"docs-notify/internal/modules/docs/repository"
+	fileutils "docs-notify/internal/utils/file_utils"
+	"mime/multipart"
 
 	"gorm.io/gorm"
 )
@@ -21,21 +23,16 @@ func NewDocsService(userRepository *repository.DocsRepository, cfg *config.Confi
 		db:         d,
 	}
 }
-func (s *DocsService) CreateDocWithFiles(doc *models.Doc, files []models.File) error {
-	// 1. Create the doc
-	if err := s.repository.CreateDoc(doc); err != nil {
+func (s *DocsService) CreateDoc(doc *models.Doc, file *multipart.FileHeader) error {
+	// Save file locally
+	filePath, err := fileutils.SaveUploadedFile(file)
+	if err != nil {
 		return err
 	}
+	// Attach to Doc model
+	doc.File = filePath
 
-	// 2. Attach docID to each file
-	for i := range files {
-		files[i].DocID = doc.ID
-	}
+	err = s.repository.CreateDoc(doc)
 
-	// 3. Save files
-	if err := s.repository.CreateFiles(files); err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

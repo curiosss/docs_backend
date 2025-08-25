@@ -17,6 +17,6 @@ func (r *DocsRepository) CreateDoc(doc *models.Doc) error {
 	return r.db.Create(doc).Error
 }
 
-func (r *DocsRepository) CreateFiles(files []models.File) error {
-	return r.db.Create(&files).Error
-}
+// func (r *DocsRepository) CreateFiles(files []models.File) error {
+// 	return r.db.Create(&files).Error
+// }

@@ -29,17 +29,18 @@ type Doc struct {
 	NotifSent   bool      `gorm:"default:false" default:"false"`
 	Status      string    `json:"status" gorm:"not null;default:'active'"`
 	Perminssion uint      `json:"perminssion" gorm:"not null;default:0"` // 0: private, 1: public
+	File        string    `json:"file"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-type File struct {
-	ID       uint `json:"id" gorm:"primaryKey;autoIncrement"`
-	DocID    uint
-	Filename string `gorm:"size:255;not null"`
-	Filepath string `gorm:"size:255;not null"`
-	URL      string `gorm:"size:255;not null"`
-}
+// type File struct {
+// 	ID       uint `json:"id" gorm:"primaryKey;autoIncrement"`
+// 	DocID    uint
+// 	Filename string `gorm:"size:255;not null"`
+// 	Filepath string `gorm:"size:255;not null"`
+// 	URL      string `gorm:"size:255;not null"`
+// }
 
 type Category struct {
 	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
