@@ -6,7 +6,6 @@ import (
 	"docs-notify/internal/utils/exceptions"
 	"docs-notify/internal/utils/util"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -25,6 +24,7 @@ func (h *DocsHandler) Login(c echo.Context) error {
 	return nil
 }
 func (h *DocsHandler) Create(c echo.Context) error {
+
 	// Parse form fields
 	var doc dto.DocCreateDto
 	// Bind JSON fields first (DocName, DocNo, etc.)
@@ -42,20 +42,19 @@ func (h *DocsHandler) Create(c echo.Context) error {
 		return exceptions.NewResponseError(exceptions.ErrBadRequest, errors.New("Dokument faýlyny ýükläň"))
 	}
 
-	// Save in DB
-	if err := h.docsService.CreateDoc(&doc, file); err != nil {
+	createdDoc, err := h.docsService.CreateDoc(&doc, file)
+
+	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusCreated, echo.Map{
-		"message": "Document created successfully",
-		"doc":     doc,
-	})
+	return c.JSON(http.StatusCreated, util.WrapResponse(createdDoc))
+
 }
 
 func (h *DocsHandler) GetDocs(c echo.Context) error {
 	userId := c.Get("user_id").(uint) // from middleware
-	fmt.Println("coming here handling docs")
+
 	docs, err := h.docsService.GetDocs(userId)
 	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)

@@ -5,7 +5,9 @@ import (
 	"docs-notify/internal/models"
 	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/repository"
+	"docs-notify/internal/utils/exceptions"
 	fileutils "docs-notify/internal/utils/file_utils"
+	"encoding/json"
 	"fmt"
 	"mime/multipart"
 	"time"
@@ -26,11 +28,12 @@ func NewDocsService(userRepository *repository.DocsRepository, cfg *config.Confi
 		db:         d,
 	}
 }
-func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHeader) error {
+
+func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHeader) (*models.Doc, error) {
 	// Save file locally
 	filePath, err := fileutils.SaveUploadedFile(file)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Attach to Doc model
@@ -39,11 +42,11 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 	fmt.Println(docDto.EndDate, docDto.NotifyDate)
 	endDate, err := time.Parse(layout, docDto.EndDate)
 	if err != nil {
-		return fmt.Errorf("invalid end date: %w", err)
+		return nil, fmt.Errorf("invalid end date: %w", err)
 	}
 	notifyDate, err := time.Parse(layout, docDto.NotifyDate)
 	if err != nil {
-		return fmt.Errorf("invalid notify date: %w", err)
+		return nil, fmt.Errorf("invalid notify date: %w", err)
 	}
 	doc := &models.Doc{
 		UserId:     docDto.UserId,
@@ -56,13 +59,31 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 		Permission: docDto.Permission,
 		File:       filePath,
 	}
-	if docDto.Permissions != nil {
-		fmt.Println(docDto.Permissions)
+
+	dc, err := s.repository.CreateDoc(doc)
+	if err != nil {
+		return nil, err
 	}
 
-	err = s.repository.CreateDoc(doc)
+	if docDto.Permissions != nil {
+		var docUsers []models.DocUser
 
-	return err
+		if err := json.Unmarshal([]byte(*docDto.Permissions), &docUsers); err != nil {
+			return nil, exceptions.NewResponseError(
+				exceptions.ErrBadRequest,
+				fmt.Errorf("invalid permissions format: %w", err),
+			)
+		}
+		for i := range docUsers {
+			docUsers[i].DocID = dc.ID
+		}
+
+		if err = s.repository.CreateDocUsers(docUsers); err != nil {
+			return nil, err
+		}
+	}
+
+	return dc, nil
 }
 
 func (s *DocsService) GetDocs(userId uint) ([]models.Doc, error) {

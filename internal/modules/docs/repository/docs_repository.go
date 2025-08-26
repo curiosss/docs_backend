@@ -13,13 +13,17 @@ type DocsRepository struct {
 func NewDocsRepository(db *gorm.DB) *DocsRepository {
 	return &DocsRepository{db: db}
 }
-func (r *DocsRepository) CreateDoc(doc *models.Doc) error {
-	return r.db.Create(doc).Error
+func (r *DocsRepository) CreateDoc(doc *models.Doc) (*models.Doc, error) {
+	if err := r.db.Create(doc).Error; err != nil {
+		return nil, err
+	}
+	return doc, nil
 }
 
-//	func (r *DocsRepository) CreateFiles(files []models.File) error {
-//		return r.db.Create(&files).Error
-//	}
+func (r *DocsRepository) CreateDocUsers(docUsers []models.DocUser) error {
+	return r.db.Create(docUsers).Error
+}
+
 func (r *DocsRepository) GetDocs(userId uint) ([]models.Doc, error) {
 	var docs []models.Doc
 
