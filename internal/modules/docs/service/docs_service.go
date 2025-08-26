@@ -56,8 +56,15 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 		Permission: docDto.Permission,
 		File:       filePath,
 	}
+	if docDto.Permissions != nil {
+		fmt.Println(docDto.Permissions)
+	}
 
 	err = s.repository.CreateDoc(doc)
 
 	return err
+}
+
+func (s *DocsService) GetDocs(userId uint) ([]models.Doc, error) {
+	return s.repository.GetDocs(userId)
 }

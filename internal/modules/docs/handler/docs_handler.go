@@ -4,7 +4,9 @@ import (
 	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/service"
 	"docs-notify/internal/utils/exceptions"
+	"docs-notify/internal/utils/util"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -52,6 +54,11 @@ func (h *DocsHandler) Create(c echo.Context) error {
 }
 
 func (h *DocsHandler) GetDocs(c echo.Context) error {
-
-	return nil
+	userId := c.Get("user_id").(uint) // from middleware
+	fmt.Println("coming here handling docs")
+	docs, err := h.docsService.GetDocs(userId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, util.WrapResponse(docs))
 }

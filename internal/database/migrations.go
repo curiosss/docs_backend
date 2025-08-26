@@ -13,7 +13,7 @@ func RunMigrations(db *gorm.DB) error {
 		&models.User{},
 		&models.Doc{},
 		&models.Category{},
-		// &models.DocUser{},
+		&models.DocUser{},
 		// &models.Action{},
 		// &models.File{},
 	)

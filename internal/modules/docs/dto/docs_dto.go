@@ -1,12 +1,20 @@
 package dto
 
+import "docs-notify/internal/models"
+
 type DocCreateDto struct {
-	UserId     uint
-	CategoryID uint   `form:"category_id" gorm:"not null" validate:"required"`
-	DocName    string `form:"doc_name" gorm:"not null;size:255" validate:"required"`
-	DocNo      string `form:"doc_no" gorm:"not null;size:100" validate:"required"`
-	EndDate    string `form:"end_date" validate:"required"`
-	NotifyDate string `form:"notify_date" validate:"required"`
-	Status     string `form:"status" gorm:"not null;default:'active'"`
-	Permission *uint  `form:"permission"` // 0: private, 1: public
+	UserId      uint
+	CategoryID  uint              `form:"category_id" gorm:"not null" validate:"required"`
+	DocName     string            `form:"doc_name" gorm:"not null;size:255" validate:"required"`
+	DocNo       string            `form:"doc_no" gorm:"not null;size:100" validate:"required"`
+	EndDate     string            `form:"end_date" validate:"required"`
+	NotifyDate  string            `form:"notify_date" validate:"required"`
+	Status      string            `form:"status" gorm:"not null;default:'active'"`
+	Permission  *uint             `form:"permission"` // 0: private, 1: public
+	Permissions *[]models.DocUser `form:"permissions"`
 }
+
+// type DocUserPm struct {
+// 	UserId uint
+// 	DocId uin
+// }

@@ -52,9 +52,9 @@ type Category struct {
 }
 
 type DocUser struct {
-	DocID    uint      `gorm:"primaryKey"`
-	UserID   uint      `gorm:"primaryKey"`
-	SharedAt time.Time `gorm:"autoCreateTime"`
+	DocID      uint `json:"doc_id"`
+	UserID     uint `json:"user_id"`
+	Permission uint `json:"permission"`
 }
 
 type Action struct {
