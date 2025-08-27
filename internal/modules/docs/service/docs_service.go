@@ -60,6 +60,8 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 		File:       filePath,
 	}
 
+	fmt.Println(docDto)
+
 	dc, err := s.repository.CreateDoc(doc)
 	if err != nil {
 		return nil, err
@@ -86,6 +88,6 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 	return dc, nil
 }
 
-func (s *DocsService) GetDocs(userId uint) (*dto.DocsResponseDto, error) {
-	return s.repository.GetDocsForUser(userId, 0, 20)
+func (s *DocsService) GetDocs(getDocsDto dto.GetDocsDto) (*dto.DocsResponseDto, error) {
+	return s.repository.GetDocsForUser(getDocsDto)
 }

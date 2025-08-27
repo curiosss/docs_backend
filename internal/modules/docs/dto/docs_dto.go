@@ -13,6 +13,13 @@ type DocCreateDto struct {
 
 }
 
+type GetDocsDto struct {
+	UserId     uint
+	CategoryID *uint `query:"category_id"`
+	Page       int   `query:"page" default:"1" validate:"min=1" `
+	Limit      int   `query:"limit" default:"20" validate:"min=1,max=100" `
+}
+
 // type DocUserPm struct {
 // 	UserId uint
 // 	DocId uin

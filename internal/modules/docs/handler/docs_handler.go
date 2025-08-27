@@ -53,9 +53,17 @@ func (h *DocsHandler) Create(c echo.Context) error {
 }
 
 func (h *DocsHandler) GetDocs(c echo.Context) error {
-	userId := c.Get("user_id").(uint) // from middleware
 
-	docs, err := h.docsService.GetDocs(userId)
+	var getDocsDto dto.GetDocsDto
+	if err := c.Bind(&getDocsDto); err != nil {
+		return err
+	}
+	getDocsDto.UserId = c.Get("user_id").(uint)
+	if getDocsDto.Limit == 0 {
+		getDocsDto.Limit = 20
+	}
+
+	docs, err := h.docsService.GetDocs(getDocsDto)
 	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}

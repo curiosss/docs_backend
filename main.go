@@ -40,7 +40,7 @@ func main() {
 	middleware.RegisterMiddlewares(server)
 
 	// Статические файлы для загрузок
-	server.Echo.Static("/static", "uploads")
+	server.Echo.Static("/uploads/docs", "uploads/docs")
 
 	// Swagger
 	server.Echo.GET("/docs/*", echoSwagger.WrapHandler)

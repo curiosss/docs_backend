@@ -41,31 +41,32 @@ func (r *DocsRepository) GetDocs(userId uint) ([]models.Doc, error) {
 }
 
 // GetDocsForUser returns docs for a user (explicit + global permission), with pagination
-func (r *DocsRepository) GetDocsForUser(userId uint, page, pageSize int) (*dto.DocsResponseDto, error) {
-	var docs []models.Doc
-	var total int64
+func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsResponseDto, error) {
 
-	offset := (page - 1) * pageSize
-
-	// Build query
+	offset := (getDocsDto.Page - 1) * getDocsDto.Limit
+	var docs []dto.DocResponse
 	query := r.db.Table("docs").
-		Select("DISTINCT docs.*").
-		Joins("LEFT JOIN doc_users ON doc_users.doc_id = docs.id").
-		Where("doc_users.user_id = ? OR docs.permission > 0", userId)
+		Select(`
+		docs.*,
+		doc_users.permission AS user_perm,
+		users.username AS username,
+		categories.name AS category_name
+	`).Joins("LEFT JOIN doc_users ON doc_users.doc_id = docs.id AND doc_users.user_id = ?", getDocsDto.UserId).
+		Joins("LEFT JOIN users ON users.id = docs.user_id").
+		Joins(" LEFT JOIN categories ON categories.id = docs.category_id").
+		Where("doc_users.user_id = ? OR docs.permission > 0", getDocsDto.UserId)
 
-	// Count total
-	if err := query.Count(&total).Error; err != nil {
-		return nil, err
+	if getDocsDto.CategoryID != nil {
+		query = query.Where("docs.category_id = ?", *getDocsDto.CategoryID)
 	}
 
-	// Apply pagination
-	if err := query.Limit(pageSize).Offset(offset).Find(&docs).Error; err != nil {
+	if err := query.Limit(getDocsDto.Limit).Offset(offset).Scan(&docs).Error; err != nil {
 		return nil, err
 	}
 
 	res := &dto.DocsResponseDto{
-		Data:  docs,
-		Total: total,
+		Docs:  docs,
+		Total: 0,
 	}
 	return res, nil
 }
