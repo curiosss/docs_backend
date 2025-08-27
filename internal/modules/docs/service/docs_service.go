@@ -86,6 +86,6 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 	return dc, nil
 }
 
-func (s *DocsService) GetDocs(userId uint) ([]models.Doc, error) {
-	return s.repository.GetDocs(userId)
+func (s *DocsService) GetDocs(userId uint) (*dto.DocsResponseDto, error) {
+	return s.repository.GetDocsForUser(userId, 0, 20)
 }
