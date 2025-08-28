@@ -135,3 +135,12 @@ func (h *UserHandler) GetAll(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, util.WrapResponse(users))
 }
+
+func (h *UserHandler) GetAllPublic(c echo.Context) error {
+
+	users, err := h.userService.GetUsersPublic()
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, util.WrapResponse(users))
+}

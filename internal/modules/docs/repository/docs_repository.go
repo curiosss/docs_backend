@@ -3,6 +3,8 @@ package repository
 import (
 	"docs-notify/internal/models"
 	"docs-notify/internal/modules/docs/dto"
+	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -69,4 +71,46 @@ func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsRes
 		Total: 0,
 	}
 	return res, nil
+}
+
+func (r *DocsRepository) Delete(id uint) error {
+	result := r.db.Delete(&models.Doc{}, id)
+	fmt.Println(result.Error)
+	if result.RowsAffected > 0 {
+		return nil
+	} else {
+		if result.Error == nil {
+			return errors.New("Dokument tapylmady")
+		}
+		return result.Error
+	}
+}
+
+func (r *DocsRepository) DeleteDocUsersByDocID(docID uint) error {
+	return r.db.Where("doc_id = ?", docID).Delete(&models.DocUser{}).Error
+}
+
+func (r *DocsRepository) GetByID(id uint) (*models.Doc, error) {
+	var doc models.Doc
+	if err := r.db.First(&doc, id).Error; err != nil {
+		return nil, err
+	}
+	return &doc, nil
+}
+
+func (r *DocsRepository) GetDocPermissions(docId uint) ([]models.DocUser, error) {
+	var permissions []models.DocUser
+	err := r.db.Model(&models.DocUser{}).Where("doc_id = ?", docId).Scan(&permissions).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return permissions, nil
+}
+
+func (r *DocsRepository) UpdateDoc(doc *models.Doc) (*models.Doc, error) {
+	if err := r.db.Save(doc).Error; err != nil {
+		return nil, err
+	}
+	return doc, nil
 }

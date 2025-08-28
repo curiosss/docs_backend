@@ -4,6 +4,7 @@ import (
 	"docs-notify/cmd"
 	"docs-notify/internal/models"
 	"errors"
+	"fmt"
 
 	"docs-notify/internal/utils/exceptions"
 	"strings"
@@ -42,6 +43,8 @@ func AuthMiddleware(server *cmd.Server) echo.MiddlewareFunc {
 func RoleMiddleware(role string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			fmt.Println("role middleware called for role:", role)
+
 			user, ok := c.Get("user").(*models.User)
 
 			if !ok {

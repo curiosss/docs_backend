@@ -51,3 +51,11 @@ func saveFile(file *multipart.FileHeader, dstPath string) error {
 
 	return nil
 }
+
+// DeleteFile deletes a file at given path
+func DeleteFile(path string) error {
+	if err := os.Remove(path); err != nil {
+		return fmt.Errorf("failed to delete file: %w", err)
+	}
+	return nil
+}

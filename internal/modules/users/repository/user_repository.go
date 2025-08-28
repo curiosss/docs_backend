@@ -169,3 +169,15 @@ func (r *UserRepository) GetAll() ([]dto.UserResponseDto, error) {
 	}
 	return responses, nil
 }
+
+func (r *UserRepository) GetAllPublic() ([]dto.UserPublicResponseDto, error) {
+	var responses []dto.UserPublicResponseDto
+
+	// Fetch only necessary fields and order by role
+	if err := r.db.Model(&models.User{}).
+		Order("role ASC").
+		Scan(&responses).Error; err != nil {
+		return nil, err
+	}
+	return responses, nil
+}

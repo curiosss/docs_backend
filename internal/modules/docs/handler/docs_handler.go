@@ -4,8 +4,10 @@ import (
 	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/service"
 	"docs-notify/internal/utils/exceptions"
+	numutils "docs-notify/internal/utils/num_utils"
 	"docs-notify/internal/utils/util"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -68,4 +70,54 @@ func (h *DocsHandler) GetDocs(c echo.Context) error {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, util.WrapResponse(docs))
+}
+
+func (h *DocsHandler) GetDocPermissions(c echo.Context) error {
+	docId, err := numutils.GetUintParam(c, "doc_id")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	permissions, err := h.docsService.GetDocPermissions(docId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, util.WrapResponse(permissions))
+}
+
+func (h *DocsHandler) Delete(c echo.Context) error {
+	fmt.Println("Deleting doc with ID:")
+
+	docId, err := numutils.GetUintParam(c, "doc_id")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	err = h.docsService.DeleteDoc(docId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (h *DocsHandler) Update(c echo.Context) error {
+
+	var doc dto.DocUpdateDto
+	if err := c.Bind(&doc); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+	if err := c.Validate(&doc); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	file, _ := c.FormFile("file")
+
+	updatedDoc, err := h.docsService.UpdateDoc(&doc, file)
+
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, util.WrapResponse(updatedDoc))
 }

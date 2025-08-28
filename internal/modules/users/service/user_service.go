@@ -76,3 +76,7 @@ func (s *UserService) DeleteUser(userId uint) error {
 func (s *UserService) GetUsers() ([]dto.UserResponseDto, error) {
 	return s.userRepository.GetAll()
 }
+
+func (s *UserService) GetUsersPublic() ([]dto.UserPublicResponseDto, error) {
+	return s.userRepository.GetAllPublic()
+}
