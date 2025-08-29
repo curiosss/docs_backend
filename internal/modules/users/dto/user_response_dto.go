@@ -10,6 +10,13 @@ type UserResponseDto struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type UserNotifDto struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	FcmToken string `json:"fcm_token"`
+}
+
 type UserPublicResponseDto struct {
 	ID        uint   `json:"id"`
 	Username  string `json:"username"`

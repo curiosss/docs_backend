@@ -4,7 +4,7 @@ import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/database"
 	fcm "docs-notify/internal/fcm/config"
-	fcm_service "docs-notify/internal/fcm/service"
+	"docs-notify/internal/fcm/service"
 	"log"
 
 	"docs-notify/internal/utils/errorHandler"
@@ -20,16 +20,16 @@ type Server struct {
 	Echo       *echo.Echo
 	Config     *config.Config
 	Database   *gorm.DB
-	FCMService *fcm_service.FCMService
+	FCMService *service.FCMService
 }
 
 func NewServer() *Server {
 	cfg := config.LoadConfig()
 
-	var fcmService *fcm_service.FCMService
+	var fcmService *service.FCMService
 	fcmApp, err := fcm.InitFirebase()
 	if err == nil {
-		fcmService, err = fcm_service.NewFCMService(fcmApp)
+		fcmService, err = service.NewFCMService(fcmApp)
 		if err != nil {
 			log.Printf("Failed to initialize FCM service: %v", err)
 		}

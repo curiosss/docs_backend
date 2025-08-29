@@ -4,15 +4,17 @@ import (
 	"context"
 	"docs-notify/cmd"
 	"docs-notify/internal"
+	cronjob "docs-notify/internal/cron/job"
 	"docs-notify/internal/middleware"
+	"docs-notify/internal/modules/docs/repository"
+	usersRepo "docs-notify/internal/modules/users/repository"
 
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	// _ "docs-notify/docs" // load generated docs
-
+	"github.com/go-co-op/gocron"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -47,12 +49,23 @@ func main() {
 
 	internal.InitRouters(server)
 
+	docsRepo := repository.NewDocsRepository(server.Database)
+	usersRepo := usersRepo.NewUserRepository(server.Database)
+	notifyCron := cronjob.NewNotifyCron(docsRepo, usersRepo, server.FCMService)
+
 	// Запуск сервера в горутине
 	go func() {
 		if err := server.Echo.Start(":" + server.Config.AppPort); err != nil && err != http.ErrServerClosed {
 			server.Echo.Logger.Fatal("shutting down the server")
 		}
 	}()
+
+	// Setup scheduler (every 1 hour, only between 08:00–22:00 UTC)
+	s := gocron.NewScheduler(time.Local)
+	s.Every(5).Minute().Do(notifyCron.Run)
+
+	// Run scheduler async
+	s.StartAsync()
 
 	// Ожидание сигнала прерывания для graceful shutdown
 	quit := make(chan os.Signal, 1)
@@ -63,4 +76,7 @@ func main() {
 	if err := server.Echo.Shutdown(ctx); err != nil {
 		server.Echo.Logger.Fatal(err)
 	}
+
+	// Stop cron safely
+	s.Stop()
 }

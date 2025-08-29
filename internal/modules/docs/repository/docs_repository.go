@@ -5,6 +5,8 @@ import (
 	"docs-notify/internal/modules/docs/dto"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -113,4 +115,21 @@ func (r *DocsRepository) UpdateDoc(doc *models.Doc) (*models.Doc, error) {
 		return nil, err
 	}
 	return doc, nil
+}
+
+func (r *DocsRepository) GetDueDocs(now time.Time) ([]models.Doc, error) {
+	var docs []models.Doc
+
+	today := now.Format("2006-01-02")
+	log.Println(today)
+
+	err := r.db.
+		Table("docs").
+		Where("notify_date = ? AND notif_sent = ?", today, false).
+		Scan(&docs).Error
+	return docs, err
+}
+
+func (r *DocsRepository) MarkNotified(docId uint) error {
+	return r.db.Table("docs").Where("id = ?", docId).Update("notif_sent", true).Error
 }

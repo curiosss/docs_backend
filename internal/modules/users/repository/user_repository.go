@@ -135,11 +135,11 @@ func (r *UserRepository) Update(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (r *UserRepository) GetByID(id uint) (*models.User, error) {
-	var user models.User
-	err := r.db.First(&user, id).Error
-	return &user, err
-}
+// func (r *UserRepository) GetByID(id uint) (*models.User, error) {
+// 	var user models.User
+// 	err := r.db.First(&user, id).Error
+// 	return &user, err
+// }
 
 func (r *UserRepository) Delete(id uint) error {
 	result := r.db.Delete(&models.User{}, id)
@@ -154,13 +154,13 @@ func (r *UserRepository) Delete(id uint) error {
 	}
 }
 
-func (r *UserRepository) GetById(id uint) (*models.User, error) {
-	var user models.User
-	if err := r.db.First(&user, id).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
+// func (r *UserRepository) GetById(id uint) (*models.User, error) {
+// 	var user models.User
+// 	if err := r.db.First(&user, id).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return &user, nil
+// }
 
 func (r *UserRepository) GetAll() ([]dto.UserResponseDto, error) {
 	var responses []dto.UserResponseDto
@@ -176,6 +176,18 @@ func (r *UserRepository) GetAll() ([]dto.UserResponseDto, error) {
 
 func (r *UserRepository) GetAllPublic() ([]dto.UserPublicResponseDto, error) {
 	var responses []dto.UserPublicResponseDto
+
+	// Fetch only necessary fields and order by role
+	if err := r.db.Model(&models.User{}).
+		Order("role ASC").
+		Scan(&responses).Error; err != nil {
+		return nil, err
+	}
+	return responses, nil
+}
+
+func (r *UserRepository) GetAllNotif() ([]dto.UserNotifDto, error) {
+	var responses []dto.UserNotifDto
 
 	// Fetch only necessary fields and order by role
 	if err := r.db.Model(&models.User{}).
