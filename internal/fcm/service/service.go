@@ -19,22 +19,22 @@ func NewFCMService(app *firebase.App) (*FCMService, error) {
 		return nil, fmt.Errorf("error getting messaging client: %w", err)
 	}
 
-	// msg := &messaging.Message{
-	// 	Token: "fbYJzkwyTvGsY9XrjYZ1D-:APA91bGgR_FqU7hw60s2LjuPgo1dSpRmz9WnEmnJaJbaBAvV0hvAy2tRaPvIchxutKSxRmPYxS4w5QHEtaPi2kGc7qG_wmhDH2ac8hzxgdeOb4cPIYtRAAk",
-	// 	Notification: &messaging.Notification{
-	// 		Title: "Big Announcement 🎉",
-	// 		Body:  "This goes to everyone!",
-	// 	},
-	// 	// Topic: "all",
-	// }
-	// res, err := client.Send(context.Background(), msg)
-	// if err != nil {
-	// 	log.Fatalf("error sending: %v", err)
-	// 	return nil, err
-	// }
+	msg := &messaging.Message{
+		Token: "fbYJzkwyTvGsY9XrjYZ1D-:APA91bGgR_FqU7hw60s2LjuPgo1dSpRmz9WnEmnJaJbaBAvV0hvAy2tRaPvIchxutKSxRmPYxS4w5QHEtaPi2kGc7qG_wmhDH2ac8hzxgdeOb4cPIYtRAAk",
+		Notification: &messaging.Notification{
+			Title: "Big Announcement 🎉",
+			Body:  "This goes to everyone!",
+		},
+		// Topic: "all",
+	}
+	res, err := client.Send(context.Background(), msg)
+	if err != nil {
+		log.Fatalf("error sending: %v", err)
+		return nil, err
+	}
 
-	// log.Println("FCM client initialized")
-	// fmt.Printf("Successfully sent message: %s\n", res)
+	log.Println("FCM client initialized")
+	fmt.Printf("Successfully sent message: %s\n", res)
 
 	return &FCMService{client: client}, nil
 }

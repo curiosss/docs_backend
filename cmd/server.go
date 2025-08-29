@@ -34,9 +34,7 @@ func NewServer() *Server {
 			log.Printf("Failed to initialize FCM service: %v", err)
 		}
 	}
-	log.Println("Firebase initialized")
-	log.Printf("client...", fcmService)
-	log.Printf("fcm app...", fcmApp)
+	log.Println("Firebase Service initialized")
 
 	// Подключение к БД
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
