@@ -3,6 +3,7 @@ package dto
 type UserLoginDto struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
+	FcmToken string `json:"fcm_token" validate:"omitempty"`
 }
 
 type UserPwdUpdateDto struct {

@@ -3,6 +3,9 @@ package cmd
 import (
 	"docs-notify/internal/config"
 	"docs-notify/internal/database"
+	fcm "docs-notify/internal/fcm/config"
+	fcm_service "docs-notify/internal/fcm/service"
+	"log"
 
 	"docs-notify/internal/utils/errorHandler"
 	"docs-notify/internal/utils/validator"
@@ -14,13 +17,26 @@ import (
 )
 
 type Server struct {
-	Echo     *echo.Echo
-	Config   *config.Config
-	Database *gorm.DB
+	Echo       *echo.Echo
+	Config     *config.Config
+	Database   *gorm.DB
+	FCMService *fcm_service.FCMService
 }
 
 func NewServer() *Server {
 	cfg := config.LoadConfig()
+
+	var fcmService *fcm_service.FCMService
+	fcmApp, err := fcm.InitFirebase()
+	if err == nil {
+		fcmService, err = fcm_service.NewFCMService(fcmApp)
+		if err != nil {
+			log.Printf("Failed to initialize FCM service: %v", err)
+		}
+	}
+	log.Println("Firebase initialized")
+	log.Printf("client...", fcmService)
+	log.Printf("fcm app...", fcmApp)
 
 	// Подключение к БД
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
@@ -41,8 +57,9 @@ func NewServer() *Server {
 	// e.Use(middleware.ErrorHandler)
 
 	return &Server{
-		Echo:     e,
-		Config:   cfg,
-		Database: db,
+		Echo:       e,
+		Config:     cfg,
+		Database:   db,
+		FCMService: fcmService,
 	}
 }

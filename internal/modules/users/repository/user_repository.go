@@ -32,6 +32,10 @@ func (r *UserRepository) Login(loginDto *dto.UserLoginDto) (*models.User, error)
 	if existing.Password != loginDto.Password {
 		return nil, errors.New("Parol dogry däl")
 	}
+	existing.FcmToken = loginDto.FcmToken
+	if err := r.db.Save(&existing).Error; err != nil {
+		return nil, err
+	}
 
 	return &existing, nil
 }

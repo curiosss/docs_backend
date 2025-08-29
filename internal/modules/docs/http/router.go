@@ -12,7 +12,7 @@ func InitDocsRouter(server *cmd.Server) {
 
 	docsRepository := repository.NewDocsRepository(server.Database)
 	docsService := service.NewDocsService(docsRepository, server.Config, server.Database)
-	docsHandler := handler.NewDocsHandler(docsService)
+	docsHandler := handler.NewDocsHandler(docsService, server.FCMService)
 
 	// server.Echo.POST("/api/users/login", docsHandler.Login)
 

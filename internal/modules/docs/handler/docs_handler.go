@@ -1,6 +1,7 @@
 package handler
 
 import (
+	fcm "docs-notify/internal/fcm/service"
 	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/service"
 	"docs-notify/internal/utils/exceptions"
@@ -15,16 +16,13 @@ import (
 
 type DocsHandler struct {
 	docsService *service.DocsService
+	fcmService  *fcm.FCMService
 }
 
-func NewDocsHandler(docsService *service.DocsService) *DocsHandler {
-	return &DocsHandler{docsService: docsService}
+func NewDocsHandler(docsService *service.DocsService, fcmService *fcm.FCMService) *DocsHandler {
+	return &DocsHandler{docsService: docsService, fcmService: fcmService}
 }
 
-func (h *DocsHandler) Login(c echo.Context) error {
-	// Implement the login logic here
-	return nil
-}
 func (h *DocsHandler) Create(c echo.Context) error {
 
 	// Parse form fields
@@ -55,6 +53,7 @@ func (h *DocsHandler) Create(c echo.Context) error {
 }
 
 func (h *DocsHandler) GetDocs(c echo.Context) error {
+	h.fcmService.SendAll()
 
 	var getDocsDto dto.GetDocsDto
 	if err := c.Bind(&getDocsDto); err != nil {
