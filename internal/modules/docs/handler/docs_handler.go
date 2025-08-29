@@ -53,7 +53,7 @@ func (h *DocsHandler) Create(c echo.Context) error {
 }
 
 func (h *DocsHandler) GetDocs(c echo.Context) error {
-	h.fcmService.SendAll()
+	h.fcmService.SendMessage("hey there", "this is body", "")
 
 	var getDocsDto dto.GetDocsDto
 	if err := c.Bind(&getDocsDto); err != nil {
