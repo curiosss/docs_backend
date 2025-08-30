@@ -136,6 +136,10 @@ func (s *DocsService) UpdateDoc(docDto *dto.DocUpdateDto, file *multipart.FileHe
 		return nil, fmt.Errorf("invalid notify date: %w", err)
 	}
 
+	if existingDoc.NotifyDate != notifyDate {
+		existingDoc.NotifSent = false
+	}
+
 	existingDoc.CategoryID = docDto.CategoryID
 	existingDoc.DocName = docDto.DocName
 	existingDoc.DocNo = docDto.DocNo

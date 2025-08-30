@@ -62,7 +62,7 @@ func main() {
 
 	// Setup scheduler (every 1 hour, only between 08:00–22:00 UTC)
 	s := gocron.NewScheduler(time.Local)
-	s.Every(5).Minute().Do(notifyCron.Run)
+	s.Every(2).Minute().Do(notifyCron.Run)
 
 	// Run scheduler async
 	s.StartAsync()
