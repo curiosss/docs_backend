@@ -57,6 +57,16 @@ type DocUser struct {
 	Permission uint `json:"permission"`
 }
 
+type Notification struct {
+	ID     uint   `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
+	DocID  uint   `json:"doc_id" validate:"required"`
+	UserID uint   `json:"user_id" validate:"required"`
+	IsSeen uint   `json:"is_seen"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
+	// Data  interface `json:"data"`
+}
+
 type Action struct {
 	gorm.Model
 	UserID     uint
