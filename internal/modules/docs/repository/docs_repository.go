@@ -75,6 +75,22 @@ func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsRes
 	return res, nil
 }
 
+func (r *DocsRepository) GetDocById(docId uint) (*dto.DocResponse, error) {
+	var doc dto.DocResponse
+	err := r.db.Table("docs").
+		Select(`
+		docs.*,
+		users.username AS username
+	`).Joins("LEFT JOIN users ON users.id = docs.user_id").
+		Where("docs.id = ?", docId).Scan(&doc).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &doc, nil
+}
+
 func (r *DocsRepository) Delete(id uint) error {
 	result := r.db.Delete(&models.Doc{}, id)
 	fmt.Println(result.Error)
@@ -132,4 +148,8 @@ func (r *DocsRepository) GetDueDocs(now time.Time) ([]models.Doc, error) {
 
 func (r *DocsRepository) MarkNotified(docId uint) error {
 	return r.db.Table("docs").Where("id = ?", docId).Update("notif_sent", true).Error
+}
+
+func (r *DocsRepository) MarkNotifCreated(docId uint) error {
+	return r.db.Table("docs").Where("id = ?", docId).Update("notif_created", true).Error
 }

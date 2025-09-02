@@ -7,7 +7,6 @@ import (
 	numutils "docs-notify/internal/utils/num_utils"
 	"docs-notify/internal/utils/util"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -69,6 +68,19 @@ func (h *DocsHandler) GetDocs(c echo.Context) error {
 	return c.JSON(http.StatusOK, util.WrapResponse(docs))
 }
 
+func (h *DocsHandler) GetDocById(c echo.Context) error {
+	docId, err := numutils.GetUintParam(c, "doc_id")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	doc, err := h.docsService.GetDocById(docId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, util.WrapResponse(doc))
+}
+
 func (h *DocsHandler) GetDocPermissions(c echo.Context) error {
 	docId, err := numutils.GetUintParam(c, "doc_id")
 	if err != nil {
@@ -84,7 +96,7 @@ func (h *DocsHandler) GetDocPermissions(c echo.Context) error {
 }
 
 func (h *DocsHandler) Delete(c echo.Context) error {
-	fmt.Println("Deleting doc with ID:")
+	// fmt.Println("Deleting doc with ID:")
 
 	docId, err := numutils.GetUintParam(c, "doc_id")
 	if err != nil {

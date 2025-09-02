@@ -17,6 +17,8 @@ func InitDocsRouter(server *cmd.Server) {
 	// server.Echo.POST("/api/users/login", docsHandler.Login)
 
 	docsRouter := server.Echo.Group("/api/docs", middleware.AuthMiddleware(server))
+
+	docsRouter.GET("/details", docsHandler.GetDocById)
 	docsRouter.POST("/create", docsHandler.Create, middleware.RoleMiddleware("operator"))
 	docsRouter.PUT("/update", docsHandler.Update)
 	docsRouter.GET("/all", docsHandler.GetDocs)

@@ -43,3 +43,18 @@ func (h *NotifsHandler) GetAdminNotifications(c echo.Context) error {
 	// return c.JSON(http.StatusOK, util.WrapResponse(categs))
 	return nil
 }
+
+func (h *NotifsHandler) MarkAsSeen(c echo.Context) error {
+	userId := c.Get("user_id").(uint)
+	docId, err := numutils.GetUintParam(c, "doc_id")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	err = h.notifsRepo.MarkAsSeen(userId, docId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+
+	}
+	return c.JSON(http.StatusOK, "")
+}

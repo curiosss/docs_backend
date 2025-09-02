@@ -102,16 +102,20 @@ func (c *NotifyCron) SendNotification(doc *models.Doc, user *dto.UserNotifDto) e
 		IsSeen: false,
 	}
 
-	notif, err := c.notifsRepo.Add(notif)
-	if err != nil {
-		return errors.New(fmt.Sprintf("failed to add notifications: %v", err))
+	if !doc.NotifCreated {
+		updated, err := c.notifsRepo.Add(notif)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to add notifications: %v", err))
+		}
+		notif = updated
+		_ = c.docsRepo.MarkNotifCreated(doc.ID)
 	}
 
 	if user.FcmToken == "" {
 		return errors.New("fcm token is empty")
 	}
 
-	err = c.fcm.SendMessage(
+	err := c.fcm.SendMessage(
 		notif.Title,
 		notif.Body,
 		user.FcmToken,
@@ -125,6 +129,6 @@ func (c *NotifyCron) SendNotification(doc *models.Doc, user *dto.UserNotifDto) e
 	}
 
 	_ = c.docsRepo.MarkNotified(doc.ID)
-	log.Printf("✅ Notification sent for doc %d", doc.ID)
+	log.Printf("Notification sent for doc %d", doc.ID)
 	return nil
 }

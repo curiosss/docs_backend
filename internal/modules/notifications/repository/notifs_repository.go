@@ -57,6 +57,14 @@ func (r *NotifsRepository) GetAll(userId uint, page int) ([]models.Notification,
 	return items, nil
 }
 
+func (r *NotifsRepository) MarkAsSeen(userId uint, docId uint) error {
+	err := r.db.Model(&models.Notification{}).Where("doc_id = ? AND user_id = ?", docId, userId).Update("is_seen", true).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // func (r *NotifsRepository) Update(category *models.Notification) (*models.Category, error) {
 // 	// Ensure the category exists before updating
 // 	var existing models.Category

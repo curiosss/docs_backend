@@ -17,6 +17,7 @@ func InitNotificationsRouter(server *cmd.Server) {
 
 	notifsRouter.GET("/user", notifsHandler.GetUserNotifications)
 	notifsRouter.GET("/admin", notifsHandler.GetAdminNotifications, middleware.RoleMiddleware("admin"))
+	notifsRouter.GET("/read", notifsHandler.MarkAsSeen)
 	// notifsRouter.POST("/create", notifsHandler.Create, middleware.RoleMiddleware("admin"))
 	// notifsRouter.PUT("/update", notifsHandler.Update, middleware.RoleMiddleware("admin"))
 	// notifsRouter.GET("/delete", notifsHandler.Delete, middleware.RoleMiddleware("admin"))

@@ -92,6 +92,10 @@ func (s *DocsService) GetDocs(getDocsDto dto.GetDocsDto) (*dto.DocsResponseDto, 
 	return s.repository.GetDocsForUser(getDocsDto)
 }
 
+func (s *DocsService) GetDocById(docId uint) (*dto.DocResponse, error) {
+	return s.repository.GetDocById(docId)
+}
+
 func (s *DocsService) DeleteDoc(docId uint) error {
 
 	doc, err := s.repository.GetByID(docId)
@@ -138,6 +142,7 @@ func (s *DocsService) UpdateDoc(docDto *dto.DocUpdateDto, file *multipart.FileHe
 
 	if existingDoc.NotifyDate != notifyDate {
 		existingDoc.NotifSent = false
+		existingDoc.NotifCreated = false
 	}
 
 	existingDoc.CategoryID = docDto.CategoryID
