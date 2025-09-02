@@ -19,34 +19,27 @@ func NewNotifsHandler(repo *repository.NotifsRepository) *NotifsHandler {
 	return &NotifsHandler{notifsRepo: repo}
 }
 
-func (h *NotifsHandler) Delete(c echo.Context) error {
-	categId, err := numutils.GetUintParam(c, "category_id")
-	if err != nil {
-		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-	}
-
-	err = h.notifsRepo.Delete(categId)
-	if err != nil {
-		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
-	}
-
-	return c.NoContent(http.StatusOK)
-}
-
 func (h *NotifsHandler) GetUserNotifications(c echo.Context) error {
 
-	categs, err := h.notifsRepo.GetAll()
+	userId := c.Get("user_id").(uint)
+	page, err := numutils.GetIntParam(c, "page")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	items, err := h.notifsRepo.GetAll(userId, page)
 	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, util.WrapResponse(categs))
+	return c.JSON(http.StatusOK, util.WrapResponse(items))
 }
 
 func (h *NotifsHandler) GetAdminNotifications(c echo.Context) error {
 
-	categs, err := h.notifsRepo.GetAll()
-	if err != nil {
-		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
-	}
-	return c.JSON(http.StatusOK, util.WrapResponse(categs))
+	// categs, err := h.notifsRepo.GetAll()
+	// if err != nil {
+	// 	return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	// }
+	// return c.JSON(http.StatusOK, util.WrapResponse(categs))
+	return nil
 }

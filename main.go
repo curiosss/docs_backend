@@ -7,6 +7,7 @@ import (
 	cronjob "docs-notify/internal/cron/job"
 	"docs-notify/internal/middleware"
 	"docs-notify/internal/modules/docs/repository"
+	notifsRepo "docs-notify/internal/modules/notifications/repository"
 	usersRepo "docs-notify/internal/modules/users/repository"
 
 	"net/http"
@@ -51,7 +52,14 @@ func main() {
 
 	docsRepo := repository.NewDocsRepository(server.Database)
 	usersRepo := usersRepo.NewUserRepository(server.Database)
-	notifyCron := cronjob.NewNotifyCron(docsRepo, usersRepo, server.FCMService)
+	notifsRepo := notifsRepo.NewNotifsRepository(server.Database)
+
+	notifyCron := cronjob.NewNotifyCron(
+		docsRepo,
+		usersRepo,
+		notifsRepo,
+		server.FCMService,
+	)
 
 	// Запуск сервера в горутине
 	go func() {

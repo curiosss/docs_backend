@@ -58,13 +58,14 @@ type DocUser struct {
 }
 
 type Notification struct {
-	ID     uint   `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
-	DocID  uint   `json:"doc_id" validate:"required"`
-	UserID uint   `json:"user_id" validate:"required"`
-	IsSeen uint   `json:"is_seen"`
-	Title  string `json:"title"`
-	Body   string `json:"body"`
-	// Data  interface `json:"data"`
+	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement" validate:"required"`
+	DocID     uint      `json:"doc_id" validate:"required"`
+	UserID    uint      `json:"user_id" validate:"required"`
+	IsSeen    bool      `json:"is_seen"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Action struct {

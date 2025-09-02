@@ -39,41 +39,48 @@ func (r *NotifsRepository) Add(notification *models.Notification) (*models.Notif
 	}
 }
 
-func (r *NotifsRepository) Update(category *models.Notification) (*models.Category, error) {
-	// Ensure the category exists before updating
-	var existing models.Category
-	if err := r.db.First(&existing, category.ID).Error; err != nil {
-		return nil, errors.New("kategoriýa tapylmady")
-	}
+func (r *NotifsRepository) GetAll(userId uint, page int) ([]models.Notification, error) {
 
-	// Perform update
-	if err := r.db.Model(&existing).Updates(category).Error; err != nil {
+	offset := (page - 1) * 30
+
+	var items []models.Notification
+
+	err := r.db.
+		Where("user_id = ?", userId).
+		Limit(30).
+		Offset(offset).
+		Find(&items).Error
+
+	if err != nil {
 		return nil, err
 	}
-
-	return &existing, nil
+	return items, nil
 }
 
-func (r *NotifsRepository) Delete(id uint) error {
-	result := r.db.Delete(&models.Category{}, id)
+// func (r *NotifsRepository) Update(category *models.Notification) (*models.Category, error) {
+// 	// Ensure the category exists before updating
+// 	var existing models.Category
+// 	if err := r.db.First(&existing, category.ID).Error; err != nil {
+// 		return nil, errors.New("kategoriýa tapylmady")
+// 	}
 
-	if result.RowsAffected > 0 {
-		return nil
-	} else {
-		if result.Error == nil {
-			return errors.New("Kategoriýa tapylmady")
-		}
-		return result.Error
-	}
-}
+// 	// Perform update
+// 	if err := r.db.Model(&existing).Updates(category).Error; err != nil {
+// 		return nil, err
+// 	}
 
-func (r *NotifsRepository) GetAll() ([]models.Category, error) {
-	var categories []models.Category
+// 	return &existing, nil
+// }
 
-	// Fetch only necessary fields and order by role
-	if err := r.db.Model(&models.Category{}).
-		Scan(&categories).Error; err != nil {
-		return nil, err
-	}
-	return categories, nil
-}
+// func (r *NotifsRepository) Delete(id uint) error {
+// 	result := r.db.Delete(&models.Category{}, id)
+
+// 	if result.RowsAffected > 0 {
+// 		return nil
+// 	} else {
+// 		if result.Error == nil {
+// 			return errors.New("Kategoriýa tapylmady")
+// 		}
+// 		return result.Error
+// 	}
+// }

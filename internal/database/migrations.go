@@ -14,6 +14,7 @@ func RunMigrations(db *gorm.DB) error {
 		&models.Doc{},
 		&models.Category{},
 		&models.DocUser{},
+		&models.Notification{},
 		// &models.Action{},
 		// &models.File{},
 	)

@@ -197,3 +197,12 @@ func (r *UserRepository) GetAllNotif() ([]dto.UserNotifDto, error) {
 	}
 	return responses, nil
 }
+
+func (r *UserRepository) RemoveFcmToken(userId uint) error {
+	if err := r.db.Table("users").
+		Where("id = ?", userId).
+		Update("fcm_token", "").Error; err != nil {
+		return err
+	}
+	return nil
+}
