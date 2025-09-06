@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -119,6 +120,7 @@ func (c *NotifyCron) SendNotification(doc *models.Doc, user *dto.UserNotifDto) e
 		notif.Title,
 		notif.Body,
 		user.FcmToken,
+		strconv.FormatUint(uint64(doc.ID), 10),
 	)
 	if err != nil {
 

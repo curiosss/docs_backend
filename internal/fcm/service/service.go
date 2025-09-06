@@ -39,7 +39,7 @@ func NewFCMService(app *firebase.App) (*FCMService, error) {
 	return &FCMService{client: client}, nil
 }
 
-func (s *FCMService) SendMessage(title string, body string, fcmToken string) error {
+func (s *FCMService) SendMessage(title string, body string, fcmToken string, doc_id string) error {
 	// Send to ALL (via topic "all")
 	log.Println(fcmToken)
 	msg := &messaging.Message{
@@ -47,6 +47,9 @@ func (s *FCMService) SendMessage(title string, body string, fcmToken string) err
 		Notification: &messaging.Notification{
 			Title: title,
 			Body:  body,
+		},
+		Data: map[string]string{
+			"doc_id": doc_id,
 		},
 	}
 
