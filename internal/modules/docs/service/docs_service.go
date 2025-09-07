@@ -49,15 +49,16 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 		return nil, fmt.Errorf("invalid notify date: %w", err)
 	}
 	doc := &models.Doc{
-		UserId:     docDto.UserId,
-		CategoryID: docDto.CategoryID,
-		DocName:    docDto.DocName,
-		DocNo:      docDto.DocNo,
-		EndDate:    endDate,
-		NotifyDate: notifyDate,
-		Status:     docDto.Status,
-		Permission: docDto.Permission,
-		File:       filePath,
+		UserId:        docDto.UserId,
+		CategoryID:    docDto.CategoryID,
+		SubCategoryId: docDto.SubCategoryId,
+		DocName:       docDto.DocName,
+		DocNo:         docDto.DocNo,
+		EndDate:       endDate,
+		NotifyDate:    notifyDate,
+		Status:        docDto.Status,
+		Permission:    docDto.Permission,
+		File:          filePath,
 	}
 
 	fmt.Println(docDto)
@@ -100,7 +101,7 @@ func (s *DocsService) DeleteDoc(docId uint) error {
 
 	doc, err := s.repository.GetByID(docId)
 	if err != nil {
-		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 
 	// Delete file from storage
@@ -110,6 +111,11 @@ func (s *DocsService) DeleteDoc(docId uint) error {
 
 	// Delete doc users associations
 	if err := s.repository.DeleteDocUsersByDocID(docId); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+
+	// Delete doc notifications
+	if err := s.repository.DeleteDocNotifications(docId); err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
 
@@ -146,6 +152,7 @@ func (s *DocsService) UpdateDoc(docDto *dto.DocUpdateDto, file *multipart.FileHe
 	}
 
 	existingDoc.CategoryID = docDto.CategoryID
+	existingDoc.SubCategoryId = docDto.SubCategoryId
 	existingDoc.DocName = docDto.DocName
 	existingDoc.DocNo = docDto.DocNo
 	existingDoc.EndDate = endDate

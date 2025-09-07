@@ -108,6 +108,10 @@ func (r *DocsRepository) DeleteDocUsersByDocID(docID uint) error {
 	return r.db.Where("doc_id = ?", docID).Delete(&models.DocUser{}).Error
 }
 
+func (r *DocsRepository) DeleteDocNotifications(docID uint) error {
+	return r.db.Where("doc_id=?", docID).Delete(&models.Notification{}).Error
+}
+
 func (r *DocsRepository) GetByID(id uint) (*models.Doc, error) {
 	var doc models.Doc
 	if err := r.db.First(&doc, id).Error; err != nil {
