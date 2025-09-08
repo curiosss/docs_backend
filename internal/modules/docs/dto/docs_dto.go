@@ -28,13 +28,26 @@ type DocUpdateDto struct {
 }
 
 type GetDocsDto struct {
+	Page          int `query:"page" default:"1" validate:"min=1"`
+	Limit         int `query:"limit" default:"20" validate:"min=1,max=100"`
 	UserId        uint
+	Categories    []uint  `query:"categories"`
 	CategoryID    *uint   `query:"category_id"`
 	SubCategoryId *uint   `query:"sub_category_id"`
 	Status        *string `query:"status"`
 	CreatedUserId *uint   `query:"created_user_id"`
-	Page          int     `query:"page" default:"1" validate:"min=1" `
-	Limit         int     `query:"limit" default:"20" validate:"min=1,max=100" `
+	CreatedFrom   *string `query:"created_from"`
+	CreatedTo     *string `query:"created_to"`
+	PreparedFrom  *string `query:"prepared_from"`
+	PreparedTo    *string `query:"prepared_to"`
+	SearchText    *string `query:"search_text"`
+}
+
+type GetDocStatsDto struct {
+	DateType string  `query:"date_type"`
+	DateFrom *string `query:"date_from"`
+	DateTo   *string `query:"date_to"`
+	UserIds  []uint  `query:"user_ids"`
 }
 
 // type DocUserPm struct {

@@ -158,6 +158,10 @@ func (s *DocsService) UpdateDoc(docDto *dto.DocUpdateDto, file *multipart.FileHe
 	existingDoc.EndDate = endDate
 	existingDoc.NotifyDate = notifyDate
 	existingDoc.Status = docDto.Status
+	if docDto.Status == "prepared" {
+		now := time.Now()
+		existingDoc.PreparedDate = &now
+	}
 	existingDoc.Permission = docDto.Permission
 
 	if err = s.repository.DeleteDocUsersByDocID(existingDoc.ID); err != nil {
@@ -202,4 +206,8 @@ func (s *DocsService) UpdateDoc(docDto *dto.DocUpdateDto, file *multipart.FileHe
 		return nil, exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
 	return updatedDoc, nil
+}
+
+func (s *DocsService) GetStatistics(docStatsDto dto.GetDocStatsDto) (*dto.DocStatsResponse, error) {
+	return s.repository.GetStatistics(docStatsDto)
 }

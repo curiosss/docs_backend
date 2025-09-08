@@ -60,9 +60,8 @@ func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsRes
 		Joins(" LEFT JOIN categories ON categories.id = docs.category_id").
 		Where("doc_users.user_id = ? OR docs.permission > 0", getDocsDto.UserId)
 
-	if getDocsDto.CategoryID != nil {
-		query = query.Where("docs.category_id = ?", *getDocsDto.CategoryID)
-	}
+	// Apply filters
+	query = getFiltersQuery(getDocsDto, query)
 
 	if err := query.Limit(getDocsDto.Limit).Offset(offset).Scan(&docs).Error; err != nil {
 		return nil, err
@@ -73,6 +72,62 @@ func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsRes
 		Total: 0,
 	}
 	return res, nil
+}
+
+func getFiltersQuery(getDocsDto dto.GetDocsDto, query *gorm.DB) *gorm.DB {
+	if getDocsDto.Categories != nil && len(getDocsDto.Categories) > 0 {
+		query = query.Where("docs.category_id IN ?", getDocsDto.Categories) // pass slice directly
+	}
+	if getDocsDto.CategoryID != nil {
+		query = query.Where("docs.category_id = ?", *getDocsDto.CategoryID)
+	}
+	if getDocsDto.SubCategoryId != nil {
+		query = query.Where("docs.sub_category_id = ?", *getDocsDto.SubCategoryId)
+	}
+	if getDocsDto.SearchText != nil && *getDocsDto.SearchText != "" {
+		search := fmt.Sprintf("%%%s%%", *getDocsDto.SearchText)
+		query = query.Where("docs.doc_name ILIKE ?", search)
+	}
+	if getDocsDto.Status != nil {
+		query = query.Where("docs.status = ?", *getDocsDto.Status)
+	}
+	if getDocsDto.CreatedUserId != nil {
+		query = query.Where("docs.user_id = ?", *getDocsDto.CreatedUserId)
+	}
+
+	// Update fields
+	layout := "2006-01-02" // Go's reference date for parsing YYYY-MM-DD
+	if getDocsDto.CreatedFrom != nil {
+		createdFrom, err := time.Parse(layout, *getDocsDto.CreatedFrom)
+		if err == nil {
+			query = query.Where("docs.created_at >= ?", createdFrom)
+		}
+
+	}
+	if getDocsDto.CreatedTo != nil {
+		createdTo, err := time.Parse(layout, *getDocsDto.CreatedTo)
+		if err == nil {
+			query = query.Where("docs.created_at <= ?", createdTo)
+		}
+
+	}
+	if getDocsDto.PreparedFrom != nil {
+		preparedFrom, err := time.Parse(layout, *getDocsDto.PreparedFrom)
+		if err == nil {
+			query = query.Where("docs.prepared_date >= ?", preparedFrom)
+		} else {
+			log.Println("Error parsing prepared_from:", err)
+		}
+
+	}
+	if getDocsDto.PreparedTo != nil {
+		preparedTo, err := time.Parse(layout, *getDocsDto.PreparedTo)
+		if err == nil {
+			query = query.Where("docs.prepared_date <= ?", preparedTo)
+		}
+
+	}
+	return query
 }
 
 func (r *DocsRepository) GetDocById(docId uint) (*dto.DocResponse, error) {
@@ -156,4 +211,99 @@ func (r *DocsRepository) MarkNotified(docId uint) error {
 
 func (r *DocsRepository) MarkNotifCreated(docId uint) error {
 	return r.db.Table("docs").Where("id = ?", docId).Update("notif_created", true).Error
+}
+
+func (r *DocsRepository) GetStatistics(docStatsDto dto.GetDocStatsDto) (*dto.DocStatsResponse, error) {
+	var byStatus []dto.StatusCount
+
+	statsQuery := r.db.Model(&models.Doc{}).
+		Select("status, COUNT(*) as count")
+	statsQuery = getStatsParams(docStatsDto, statsQuery)
+	if err := statsQuery.
+		Group("status").
+		Scan(&byStatus).Error; err != nil {
+		return nil, err
+	}
+
+	var byCategory []dto.CategoryCount
+	categsQuery := r.db.Table("docs").
+		Select(`
+			docs.category_id,
+			categories.name as category_name,
+			categories.parent_id,
+			COUNT(docs.id) as count
+		`).
+		Joins("LEFT JOIN categories ON categories.id = docs.category_id")
+	categsQuery = getStatsParams(docStatsDto, categsQuery)
+	if err := categsQuery.
+		Group("docs.category_id, categories.name, categories.parent_id").
+		Scan(&byCategory).Error; err != nil {
+		return nil, err
+	}
+
+	var bySubCategory []dto.CategoryCount
+	subCategsQuery := r.db.Table("docs").
+		Select(`
+			docs.sub_category_id as category_id,
+			categories.name as category_name,
+			categories.parent_id,
+			COUNT(docs.id) as count
+		`).
+		Joins("LEFT JOIN categories ON categories.id = docs.sub_category_id").
+		Where("docs.sub_category_id IS NOT NULL")
+
+	subCategsQuery = getStatsParams(docStatsDto, subCategsQuery)
+	if err := subCategsQuery.
+		Group("docs.sub_category_id, categories.name, categories.parent_id").
+		Scan(&bySubCategory).Error; err != nil {
+		return nil, err
+	}
+
+	var total int64
+	if err := r.db.Table("docs").Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	stats := &dto.DocStatsResponse{
+		TotalDocs:     total,
+		ByStatus:      byStatus,
+		ByCategory:    byCategory,
+		BySubCategory: bySubCategory,
+	}
+
+	return stats, nil
+	//
+
+}
+
+func getStatsParams(docStatsDto dto.GetDocStatsDto, query *gorm.DB) *gorm.DB {
+	// Apply filters
+	layout := "2006-01-02"
+
+	if docStatsDto.DateFrom != nil {
+		dateFrom, err := time.Parse(layout, *docStatsDto.DateFrom)
+		if err == nil {
+			if docStatsDto.DateType == "prepared" {
+				query = query.Where("prepared_date >= ?", dateFrom)
+			} else {
+				query = query.Where("docs.created_at >= ?", dateFrom)
+			}
+		}
+
+	}
+	if docStatsDto.DateTo != nil {
+		dateTo, err := time.Parse(layout, *docStatsDto.DateTo)
+		if err == nil {
+			if docStatsDto.DateType == "prepared" {
+				query = query.Where("docs.prepared_date <= ?", dateTo)
+			} else {
+				query = query.Where("docs.created_at <= ?", dateTo)
+			}
+		}
+
+	}
+	if docStatsDto.UserIds != nil && len(docStatsDto.UserIds) > 0 {
+		query = query.Where("docs.user_id IN ?", docStatsDto.UserIds) // pass slice directly
+	}
+	return query
 }

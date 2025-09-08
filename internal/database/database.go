@@ -18,7 +18,7 @@ func Connect(dsn string, cfg *config.Config) (*gorm.DB, error) {
 		&gorm.Config{
 			Logger: gormLogger.Default.LogMode(gormLogger.Info),
 			NowFunc: func() time.Time {
-				utc, _ := time.LoadLocation("")
+				utc, _ := time.LoadLocation("Asia/Ashgabat")
 				return time.Now().In(utc)
 			},
 			PrepareStmt:     false,

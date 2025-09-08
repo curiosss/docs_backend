@@ -54,7 +54,7 @@ func (h *DocsHandler) GetDocs(c echo.Context) error {
 
 	var getDocsDto dto.GetDocsDto
 	if err := c.Bind(&getDocsDto); err != nil {
-		return err
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
 	}
 	getDocsDto.UserId = c.Get("user_id").(uint)
 	if getDocsDto.Limit == 0 {
@@ -129,4 +129,18 @@ func (h *DocsHandler) Update(c echo.Context) error {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, util.WrapResponse(updatedDoc))
+}
+
+func (h *DocsHandler) GetStatistics(c echo.Context) error {
+
+	var getDocsDto dto.GetDocStatsDto
+	if err := c.Bind(&getDocsDto); err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+
+	stats, err := h.docsService.GetStatistics(getDocsDto)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, util.WrapResponse(stats))
 }

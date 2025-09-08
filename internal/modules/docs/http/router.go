@@ -24,4 +24,6 @@ func InitDocsRouter(server *cmd.Server) {
 	docsRouter.GET("/all", docsHandler.GetDocs)
 	docsRouter.GET("/permissions", docsHandler.GetDocPermissions)
 	docsRouter.GET("/delete", docsHandler.Delete, middleware.RoleMiddleware("operator"))
+
+	docsRouter.GET("/statistics", docsHandler.GetStatistics)
 }

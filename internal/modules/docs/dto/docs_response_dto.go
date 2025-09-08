@@ -27,3 +27,20 @@ type DocsResponseDto struct {
 	Docs  []DocResponse `json:"docs"`
 	Total int64         `json:"total"`
 }
+
+type StatusCount struct {
+	Status string `json:"status"`
+	Count  int64  `json:"count"`
+}
+type CategoryCount struct {
+	CategoryID   uint   `json:"category_id"`
+	CategoryName string `json:"category_name"`
+	Count        int64  `json:"count"`
+	ParentID     *uint  `json:"parent_id"`
+}
+type DocStatsResponse struct {
+	TotalDocs     int64           `json:"total_docs"`
+	ByStatus      []StatusCount   `json:"by_status"`
+	ByCategory    []CategoryCount `json:"by_category"`
+	BySubCategory []CategoryCount `json:"by_sub_category"`
+}
