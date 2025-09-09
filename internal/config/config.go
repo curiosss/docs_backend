@@ -16,12 +16,21 @@ type Config struct {
 	DBPassword           string
 	DBName               string
 	JWTSecret            string
-	FCMServerKey         string
 	DisableAutoMigration bool
-	PostgresUri          string
 }
 
 func LoadConfig() *Config {
+	// return &Config{
+	// 	AppPort:              "8000",
+	// 	DBHost:               "localhost",
+	// 	DBPort:               "5432",
+	// 	DBUser:               "user",
+	// 	DBPassword:           "pwd4docs3",
+	// 	DBName:               "docs_notify_db",
+	// 	JWTSecret:            "Docs4notifier7",
+	// 	DisableAutoMigration: false,
+	// }
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("No .env file found or failed to load it")
@@ -36,9 +45,7 @@ func LoadConfig() *Config {
 		DBPassword:           getEnv("DB_PASSWORD", "password"),
 		DBName:               getEnv("DB_NAME", "docs_notify_db"),
 		JWTSecret:            getEnv("JWT_SECRET", "default_secret"),
-		FCMServerKey:         getEnv("FCM_SERVER_KEY", "default_fcm_key"),
 		DisableAutoMigration: disableAutoMigration,
-		PostgresUri:          getEnv("POSTGRES_URI", ""),
 	}
 }
 
