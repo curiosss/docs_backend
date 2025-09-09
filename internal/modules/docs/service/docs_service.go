@@ -89,8 +89,9 @@ func (s *DocsService) CreateDoc(docDto *dto.DocCreateDto, file *multipart.FileHe
 	return dc, nil
 }
 
-func (s *DocsService) GetDocs(getDocsDto dto.GetDocsDto) (*dto.DocsResponseDto, error) {
-	return s.repository.GetDocsForUser(getDocsDto)
+func (s *DocsService) GetDocs(getDocsDto dto.GetDocsDto, isAdmin bool) (*dto.DocsResponseDto, error) {
+
+	return s.repository.GetDocsForUser(getDocsDto, isAdmin)
 }
 
 func (s *DocsService) GetDocById(docId uint) (*dto.DocResponse, error) {

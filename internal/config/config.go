@@ -19,17 +19,21 @@ type Config struct {
 	DisableAutoMigration bool
 }
 
+// func LoadConfig() *Config {
+// 	return &Config{
+// 		AppPort:              "8000",
+// 		DBHost:               "172.16.18.66",
+// 		DBPort:               "5432",
+// 		DBUser:               "user",
+// 		DBPassword:           "pwd4docs3",
+// 		DBName:               "docs_notify_db",
+// 		JWTSecret:            "Docs4notifier7",
+// 		DisableAutoMigration: false,
+// 	}
+
+// }
+
 func LoadConfig() *Config {
-	// return &Config{
-	// 	AppPort:              "8000",
-	// 	DBHost:               "localhost",
-	// 	DBPort:               "5432",
-	// 	DBUser:               "user",
-	// 	DBPassword:           "pwd4docs3",
-	// 	DBName:               "docs_notify_db",
-	// 	JWTSecret:            "Docs4notifier7",
-	// 	DisableAutoMigration: false,
-	// }
 
 	err := godotenv.Load()
 	if err != nil {

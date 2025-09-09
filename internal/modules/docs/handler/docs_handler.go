@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"docs-notify/internal/models"
 	"docs-notify/internal/modules/docs/dto"
 	"docs-notify/internal/modules/docs/service"
 	"docs-notify/internal/utils/exceptions"
@@ -61,7 +62,13 @@ func (h *DocsHandler) GetDocs(c echo.Context) error {
 		getDocsDto.Limit = 20
 	}
 
-	docs, err := h.docsService.GetDocs(getDocsDto)
+	isAdmin := false
+	user, ok := c.Get("user").(*models.User)
+	if ok {
+		isAdmin = user.Role == "admin"
+	}
+
+	docs, err := h.docsService.GetDocs(getDocsDto, isAdmin)
 	if err != nil {
 		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
 	}

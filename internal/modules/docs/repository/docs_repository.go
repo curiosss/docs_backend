@@ -45,7 +45,7 @@ func (r *DocsRepository) GetDocs(userId uint) ([]models.Doc, error) {
 }
 
 // GetDocsForUser returns docs for a user (explicit + global permission), with pagination
-func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsResponseDto, error) {
+func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto, isAdmin bool) (*dto.DocsResponseDto, error) {
 
 	offset := (getDocsDto.Page - 1) * getDocsDto.Limit
 	var docs []dto.DocResponse
@@ -57,9 +57,11 @@ func (r *DocsRepository) GetDocsForUser(getDocsDto dto.GetDocsDto) (*dto.DocsRes
 		categories.name AS category_name
 	`).Joins("LEFT JOIN doc_users ON doc_users.doc_id = docs.id AND doc_users.user_id = ?", getDocsDto.UserId).
 		Joins("LEFT JOIN users ON users.id = docs.user_id").
-		Joins(" LEFT JOIN categories ON categories.id = docs.category_id").
-		Where("doc_users.user_id = ? OR docs.permission > 0", getDocsDto.UserId)
+		Joins(" LEFT JOIN categories ON categories.id = docs.category_id")
 
+	if !isAdmin {
+		query = query.Where("doc_users.user_id = ? OR docs.permission > 0", getDocsDto.UserId)
+	}
 	// Apply filters
 	query = getFiltersQuery(getDocsDto, query)
 
