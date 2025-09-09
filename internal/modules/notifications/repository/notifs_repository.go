@@ -2,6 +2,7 @@ package repository
 
 import (
 	"docs-notify/internal/models"
+	"docs-notify/internal/modules/notifications/dto"
 	"errors"
 
 	"gorm.io/gorm"
@@ -52,6 +53,23 @@ func (r *NotifsRepository) GetAll(userId uint, page int) ([]models.Notification,
 		Find(&items).Error
 
 	if err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *NotifsRepository) GetAdminNotifs(docId uint) ([]dto.NotificationAdminResponseDto, error) {
+
+	var items []dto.NotificationAdminResponseDto
+	query := r.db.Table("notifications").
+		Select(`
+		notifications.*,
+		users.username AS username,
+		users.role as user_role
+	`).Joins("LEFT JOIN users ON users.id = notifications.user_id").
+		Where("notifications.doc_id = ?", docId)
+
+	if err := query.Find(&items).Error; err != nil {
 		return nil, err
 	}
 	return items, nil

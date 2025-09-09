@@ -260,7 +260,9 @@ func (r *DocsRepository) GetStatistics(docStatsDto dto.GetDocStatsDto) (*dto.Doc
 	}
 
 	var total int64
-	if err := r.db.Table("docs").Count(&total).Error; err != nil {
+	totalQuery := r.db.Table("docs")
+	totalQuery = getStatsParams(docStatsDto, totalQuery)
+	if err := totalQuery.Count(&total).Error; err != nil {
 		return nil, err
 	}
 
@@ -284,12 +286,11 @@ func getStatsParams(docStatsDto dto.GetDocStatsDto, query *gorm.DB) *gorm.DB {
 		dateFrom, err := time.Parse(layout, *docStatsDto.DateFrom)
 		if err == nil {
 			if docStatsDto.DateType == "prepared" {
-				query = query.Where("prepared_date >= ?", dateFrom)
+				query = query.Where("docs.prepared_date >= ?", dateFrom)
 			} else {
 				query = query.Where("docs.created_at >= ?", dateFrom)
 			}
 		}
-
 	}
 	if docStatsDto.DateTo != nil {
 		dateTo, err := time.Parse(layout, *docStatsDto.DateTo)

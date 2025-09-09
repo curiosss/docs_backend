@@ -36,12 +36,16 @@ func (h *NotifsHandler) GetUserNotifications(c echo.Context) error {
 
 func (h *NotifsHandler) GetAdminNotifications(c echo.Context) error {
 
-	// categs, err := h.notifsRepo.GetAll()
-	// if err != nil {
-	// 	return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
-	// }
-	// return c.JSON(http.StatusOK, util.WrapResponse(categs))
-	return nil
+	docId, err := numutils.GetUintParam(c, "doc_id")
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrBadRequest, err)
+	}
+	items, err := h.notifsRepo.GetAdminNotifs(docId)
+	if err != nil {
+		return exceptions.NewResponseError(exceptions.ErrInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, util.WrapResponse(items))
+
 }
 
 func (h *NotifsHandler) MarkAsSeen(c echo.Context) error {
